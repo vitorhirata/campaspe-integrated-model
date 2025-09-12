@@ -1,3 +1,5 @@
 include("gw_state.jl")
 include("groundwater_policy.jl")
+include("environment.jl")
+include("sw_state.jl")
 include("surface_water_policy.jl")
