@@ -10,13 +10,15 @@
     coliban_share::Float64 = round(1 - gmw_share; digits=2) # Water under control of Coliban
     worst_case_loss::Int64 = 18560 # Worst case operational losses in ML
     min_op_vol::Int64 = 1024 # Minimum dam operation volume, in ML
+    usable_dam_vol::Float64 = 0 # Usable dam volume
     total_water_orders::Float64 = 0.0 # Total water orders for entire catchment for a season
     total_allocated::Float64 = 0.0 # Total water volume allocated
     goulburn_increment::Float64 = 0.0 # Weekly increment for "high" allocation seasons
+    goulburn_alloc_perc::Float64 = 0.0
     avail_allocation::Dict{String, Dict{String, Float64}} = allocation_template() # Available allocations
     cumu_allocation::Dict{String, Dict{String, Float64}} = allocation_template() # Cumulative allocations
     perc_entitlement::Dict{String, Dict{String, Float64}} = allocation_template() # Percentage entitlement
-    adj_perc_entitlement::Dict{String, Dict{String, Float64}} = allocation_template() # Adjusted percentage
+    adj_perc_entitlement::Dict{String, Any} = allocation_template() # Adjusted percentage
     carry_commitment::Dict{Int, Float64} = Dict() # Carryover commitments by year
     other_hr_entitlements::Float64 = 12623.3 # Other system high reliability entitlements
     other_lr_entitlements::Float64 = 10753.7 # Other system low reliability entitlements
@@ -33,6 +35,8 @@
     water_losses::Dict{String, Vector{Float64}} # Water losses from lake and operations
     model_run_range::StepRange{Date, Period} # Date range for model execution
     goulburn_alloc_scenario::String # Allocation scenario for Goulburn catchment
+    goulburn_wet_scenario::Bool = false
+    goulburn_alloc_func::Union{Function, Nothing} = nothing
     dam_ext::DataFrame # Water extractions not accounted for by discharge
     zone_info::Dict{Int64, Any} # Information about farm zones
     env_state::EnvironmentState = EnvironmentState(model_run_range = model_run_range)
