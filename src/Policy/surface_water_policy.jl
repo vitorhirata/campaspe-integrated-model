@@ -361,3 +361,26 @@ function environmental_order_dates(date::Date, season_end::Date)::Bool
         (date == season_end)
     )
 end
+
+"""
+    get_dam_extraction(sw_state::SwState, date::Date)::Float64
+
+Get dam extraction volume for a given date from DataFrame or return constant value.
+If the date is not found in the DataFrame, returns 0.0.
+
+# Arguments
+- `sw_state::SwState` : surface water state structure
+- `date::Date` : date for which to get extraction volume
+
+# Returns
+- `Float64` : extraction volume in ML for the given date
+"""
+function get_dam_extraction(sw_state::SwState, date::Date)::Float64
+    # Try to find extraction for this date
+    if date in sw_state.dam_ext.Time
+        row_idx = findfirst(==(date), sw_state.dam_ext.Date)
+        return sw_state.dam_ext[row_idx, "Extraction (ML)"]
+    else
+        return 0.0
+    end
+end
