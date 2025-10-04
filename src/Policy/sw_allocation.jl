@@ -550,3 +550,67 @@ function update_catchment_stats!(sw_state::SwState)::Nothing
 
     return nothing
 end
+
+"""
+    calc_other_orders!(sw_state::SwState)::Float64
+
+Calculate water orders for "other" (non-farming and non-environmental) water systems.
+
+"Other" zones receive their available allocation immediately as water orders.
+This function:
+1. Identifies zones with zone_type == "other"
+2. Calculates available allocation after subtracting previously ordered water
+3. Releases all available allocation as water orders
+4. Updates carryover state
+5. Subtracts released water from catchment-level available allocation
+
+# Arguments
+- `sw_state::SwState` : surface water state structure
+
+# Returns
+- `Float64` : total water ordered for "other" systems in ML
+"""
+function calc_other_orders!(sw_state::SwState)::Float64
+    if sw_state.current_time == 0
+        return 0.0
+    end
+
+    hr_release = 0.0
+    lr_release = 0.0
+
+    for (zone_id, z_info) in sw_state.zone_info
+        if z_info["zone_type"] == "other"
+            # Calculate additional allocation if any
+            total_water_ordered = sum(z_info["ts_water_orders"]["campaspe"][1:sw_state.current_time])
+            alloc_to_date_hr = z_info["allocated_to_date"]["campaspe"]["HR"]
+            alloc_to_date_lr = z_info["allocated_to_date"]["campaspe"]["LR"]
+
+            avail_lr, avail_hr, leftover = prop_subtract(alloc_to_date_lr, alloc_to_date_hr, total_water_ordered)
+
+            # Release any available allocation as soon as able
+            if (z_info["avail_allocation"]["campaspe"]["LR"] + z_info["avail_allocation"]["campaspe"]["HR"]) > 0.0
+                z_info["ts_water_orders"]["campaspe"][sw_state.current_time] = avail_hr + avail_lr
+                hr_release += avail_hr
+                lr_release += avail_lr
+                z_info["avail_allocation"]["campaspe"]["HR"] = 0.0
+                z_info["avail_allocation"]["campaspe"]["LR"] = 0.0
+            else
+                z_info["avail_allocation"]["campaspe"]["HR"] = avail_hr
+                z_info["avail_allocation"]["campaspe"]["LR"] = avail_lr
+            end
+
+            # Subtract water orders from carryover state if available
+            update_carryover_state!(z_info, sw_state.current_time)
+        end
+    end
+
+    water_order = hr_release + lr_release
+
+    if water_order > 0.0
+        # Update total available allocations
+        allocs = sw_state.avail_allocation["campaspe"]
+        allocs["LR"], allocs["HR"], leftover = prop_subtract(allocs["LR"], allocs["HR"], water_order)
+    end
+
+    return water_order
+end
