@@ -5,8 +5,18 @@ function create_test_sw_state()
         Time = [Date("2020-07-01"), Date("2020-07-08")],
         Extraction = [10.0, 15.0],
     )
-    zone_info::Dict{Int64, Any} = Dict(
-        1 => Dict(
+    env_systems = DataFrame(
+        "Water System" => ["Campaspe River Environment", "test"],
+        "HR_Entitlement" => [1000.0, 2000.0],
+        "LR_Entitlement" => [4000.0, 9000.0]
+    )
+    other_systems = DataFrame(
+        "Water System" => ["Vic Murray (Zone 7)", "Eppalock Reservoir"],
+        "HR_Entitlement" => [100.0, 0.0],
+        "LR_Entitlement" => [500.0, 1000.0]
+    )
+    zone_info::Dict{String, Any} = Dict(
+        "1" => Dict(
             "entitlement" => Dict(
                 "camp_HR" => 1000.0, "camp_LR" => 500.0,
                 "goul_HR" => 800.0, "goul_LR" => 0.0,
@@ -20,7 +30,8 @@ function create_test_sw_state()
         )
     )
 
-    sw_state = CampaspeIntegratedModel.SwState(model_run_range, zone_info, goulburn_alloc_scenario, dam_ext)
+    sw_state = CampaspeIntegratedModel.SwState(model_run_range, zone_info, goulburn_alloc_scenario, dam_ext,
+        env_systems, other_systems)
     return sw_state
 end
 
