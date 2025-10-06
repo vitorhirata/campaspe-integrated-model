@@ -241,12 +241,14 @@ function later_allocation(sw_state::SwState, year::Int64, ts::Int64, gmw_vol::Fl
         leftover = update_carryover_state!(z_info, ts)
 
         # Update available allocation by subtracting water order from available allocation
-        # Inline get_avail_zone_allocation for campaspe system
         avail_hr = z_info["avail_allocation"]["campaspe"]["HR"]
         avail_lr = z_info["avail_allocation"]["campaspe"]["LR"]
 
         avail_lr, avail_hr, leftover = prop_subtract(avail_lr, avail_hr, leftover)
-        @assert isapprox(leftover, 0.0)
+        # TODO: Bug happening here. The tests have zero f_orders because adding orders raises errors in this assert.
+        @assert isapprox(leftover, 0.0) "Cannot order more than available allocation. Zone: $zone, " *
+            "Water ordered: $(z_info["ts_water_orders"]["campaspe"][ts]), Leftover: $leftover, " *
+            "Avail HR: $avail_hr, Avail LR: $avail_lr, Zone type: $(z_info["zone_type"])"
 
         # Inline set_avail_zone_allocation for campaspe system
         z_info["avail_allocation"]["campaspe"]["HR"] = avail_hr

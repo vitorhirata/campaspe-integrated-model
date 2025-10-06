@@ -70,7 +70,7 @@ end
             @test z_info["avail_allocation"]["campaspe"]["HR"] >= 0.0
             @test z_info["avail_allocation"]["campaspe"]["LR"] == 0.0
             @test z_info["allocated_to_date"]["campaspe"]["HR"] >= 0.0
-            @test z_info["ts_water_orders"]["campaspe"][1] == 0.0
+            @test z_info["ts_water_orders"]["campaspe"][ts] == 0.0
         end
     end
 end

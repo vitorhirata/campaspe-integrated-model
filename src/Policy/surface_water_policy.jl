@@ -31,7 +31,7 @@ function update_surface_water(
     calc_allocation(sw_state, f_orders, dam_vol, rolling_dam_level)
 
     other_orders = calc_other_orders!(sw_state)
-    farm_orders = sum(values(f_orders.values))
+    farm_orders = sum(values(f_orders))
 
     # Get environmental allocation
     env_hr = env_lr = 0.0
@@ -97,7 +97,7 @@ function update_surface_water(
     update_catchment_stats!(sw_state)
 
     # Aggregate by regulation zone (unregulated areas get ignored)
-    regzone_orders = Dict{Int64, Float64}()
+    regzone_orders = Dict{String, Float64}()
     for (z_id, z_info) in sw_state.zone_info
         reg_zone = z_info["regulation_zone"]
         regzone_orders[reg_zone] = get(regzone_orders, reg_zone, 0.0)
@@ -118,7 +118,7 @@ function update_surface_water(
     if date == sw_state.season_end
         calc_carryover!(sw_state, sw_state.current_year, sw_state.current_time, date)
 
-        sw_state.current_time = 0  # Will be incremented to 1 at next run
+        sw_state.current_time = 1
         sw_state.env_state.season_order = 0.0
         sw_state.current_year += 1
         sw_state.next_run = nothing
@@ -312,7 +312,7 @@ function dam_release(sw_state::SwState, date::Date, water_orders::Dict, other_re
 end
 
 """
-    check_run(sw_state::GwState, date::Date)
+    check_run(sw_state::SwState, date::Date)
 
 Check if surface water policy model should run and updates times.
 
@@ -323,7 +323,7 @@ Check if surface water policy model should run and updates times.
 # Returns
 Boolean defining if the model should run.
 """
-function check_run(sw_state::GwState, date::Date)
+function check_run(sw_state::SwState, date::Date)
     if sw_state.next_run == nothing
         if month(date) == month(sw_state.season_start) && day(date) == day(sw_state.season_start)
             sw_state.season_end = Date(year(date) + 1, month(sw_state.season_end), day(sw_state.season_end))
@@ -331,8 +331,8 @@ function check_run(sw_state::GwState, date::Date)
             sw_state.next_run = date + sw_state.timestep
 
             # Reset environmental water order counter
-            sw_state.env_state.water_order = 0
-            sw_state.env_state.season_order = 0
+            sw_state.env_state.water_order = 0.0
+            sw_state.env_state.season_order = 0.0
 
             return true
         else
