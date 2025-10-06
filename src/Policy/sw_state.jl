@@ -75,8 +75,8 @@ function SwState(
         env_systems, other_systems)
 
     # Environmental entitlements
-    env_hr_entitlement = sum(env_systems.HR_Entitlement)
-    env_lr_entitlement = sum(env_systems.LR_Entitlement)
+    env_hr_entitlement::Float64 = sum(env_systems.HR_Entitlement)
+    env_lr_entitlement::Float64 = sum(env_systems.LR_Entitlement)
     env_state = EnvironmentState(model_run_range, env_hr_entitlement, env_lr_entitlement)
 
     #Other entitlements
