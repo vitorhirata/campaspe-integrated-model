@@ -58,7 +58,7 @@ function get_goulburn_allocation!(sw_state::SwState;
             sw_state.goulburn_alloc_func = goulburn_dry_low
         end
 
-        sw_state.goulburn_alloc_perc = max(0.0, sw_state.goulburn_alloc_func(sw_state.current_time + 1))
+        sw_state.goulburn_alloc_perc = max(0.0, sw_state.goulburn_alloc_func(sw_state.ts + 1))
     end
 
     return nothing

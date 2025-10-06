@@ -1,5 +1,5 @@
 @with_kw mutable struct EnvironmentState
-    current_time::Int64 = 0
+    ts::Int64 = 1
     season_order::Float64 = 0.0
     water_order::Float64 = 0.0
     fixed_annual_losses::Float64

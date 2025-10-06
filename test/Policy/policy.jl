@@ -97,7 +97,7 @@ end
         @test typeof(farm_allocations) == Dict{String, Any}
 
         # Test that projected inflow was set
-        @test policy_state.sw_state.proj_inflow[policy_state.sw_state.current_time] == proj_inflow
+        @test policy_state.sw_state.proj_inflow[policy_state.sw_state.ts] == proj_inflow
 
         # Test farm allocations structure (if any farm zones exist)
         if !isempty(farm_allocations)

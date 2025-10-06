@@ -82,7 +82,7 @@ end
         ts = 2
 
         # Setup initial state - simulate that first_allocation already ran
-        sw_state.current_time = ts
+        sw_state.ts = ts
         sw_state.current_year = year
         sw_state.hr_entitlement = 10000.0
         sw_state.lr_entitlement = 5000.0
@@ -156,7 +156,7 @@ end
         ts = 2
 
         # Setup initial state - HR below 100%
-        sw_state.current_time = ts
+        sw_state.ts = ts
         sw_state.hr_entitlement = 10000.0
         sw_state.lr_entitlement = 5000.0
         sw_state.worst_case_loss = 1000.0
@@ -220,7 +220,7 @@ end
 @testset "#calc_allocation" begin
     @testset "first timestep (ts=1) calls first_allocation" begin
         sw_state = create_test_sw_state()
-        sw_state.current_time = 1
+        sw_state.ts = 1
         sw_state.current_year = 1
 
         # Set up initial conditions
@@ -259,7 +259,7 @@ end
 
     @testset "later timestep (ts=2) calls later_allocation" begin
         sw_state = create_test_sw_state()
-        sw_state.current_time = 2
+        sw_state.ts = 2
         sw_state.current_year = 1
 
         # Set up state as if first allocation already happened

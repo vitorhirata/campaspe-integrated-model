@@ -11,7 +11,7 @@
         @test env_state.hr_entitlement == hr_entitlement - 1656.0  # fixed_annual_losses subtracted
         @test env_state.lr_entitlement == lr_entitlement
         @test env_state.fixed_annual_losses == 1656.0
-        @test env_state.current_time == 0
+        @test env_state.ts == 1
         @test env_state.season_order == 0.0
         @test env_state.water_order == 0.0
     end

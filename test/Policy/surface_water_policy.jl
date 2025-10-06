@@ -127,7 +127,7 @@ end
         )
 
         @test result == false
-        @test sw_state.current_time == 1
+        @test sw_state.ts == 1
         @test sw_state.next_run === nothing  # Should remain nothing
     end
 
@@ -154,7 +154,7 @@ end
         @test result >= 0.0
 
         # Check that the model ran
-        @test sw_state.current_time == 1
+        @test sw_state.ts == 1
         @test sw_state.next_run !== nothing
 
         # Check that allocations were calculated
@@ -181,7 +181,7 @@ end
         rolling_dam_level = 175.0
         release_timeframe = 7
 
-        initial_timestep = sw_state.current_time
+        initial_timestep = sw_state.ts
         initial_total_orders = sw_state.total_water_orders
 
         # Call update_surface_water
@@ -195,7 +195,7 @@ end
         @test result >= 0.0
 
         # Timestep should have incremented
-        @test sw_state.current_time == initial_timestep + 1
+        @test sw_state.ts == initial_timestep + 1
 
         # Farm orders were zero but environmental/other orders may have been added
         # Just check that total water orders increased

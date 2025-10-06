@@ -26,7 +26,7 @@ function update_surface_water(
 
     # Record farm orders for the campaspe
     for (key, value) in f_orders
-        sw_state.zone_info[key]["ts_water_orders"]["campaspe"][sw_state.current_time] = value
+        sw_state.zone_info[key]["ts_water_orders"]["campaspe"][sw_state.ts] = value
     end
     calc_allocation(sw_state, f_orders, dam_vol, rolling_dam_level)
 
@@ -68,7 +68,7 @@ function update_surface_water(
 
         @assert (ordered_lr + ordered_hr >= 0.0) || isapprox(ordered_lr + ordered_hr, 0.0)
 
-        z_info["ts_water_orders"]["campaspe"][sw_state.current_time] = ordered_lr + ordered_hr
+        z_info["ts_water_orders"]["campaspe"][sw_state.ts] = ordered_lr + ordered_hr
 
         # Update zone available allocation for campaspe system
         z_info["avail_allocation"]["campaspe"]["HR"] = z_env_hr
@@ -101,14 +101,14 @@ function update_surface_water(
     for (z_id, z_info) in sw_state.zone_info
         reg_zone = z_info["regulation_zone"]
         regzone_orders[reg_zone] = get(regzone_orders, reg_zone, 0.0)
-        regzone_orders[reg_zone] += z_info["ts_water_orders"]["campaspe"][sw_state.current_time]
+        regzone_orders[reg_zone] += z_info["ts_water_orders"]["campaspe"][sw_state.ts]
     end
 
     @assert sum(values(regzone_orders)) >= 0.0
 
     daily_dam_release = dam_release(sw_state, date, regzone_orders, total_other,
                                      sw_state.usable_dam_vol,
-                                     sw_state.proj_inflow[sw_state.current_time],
+                                     sw_state.proj_inflow[sw_state.ts],
                                      0.0,  # siphon inflows not taken into account (set to 0.0)
                                      release_timeframe)
 
@@ -116,9 +116,9 @@ function update_surface_water(
 
     # Handle end of season
     if date == sw_state.season_end
-        calc_carryover!(sw_state, sw_state.current_year, sw_state.current_time, date)
+        calc_carryover!(sw_state, sw_state.current_year, sw_state.ts, date)
 
-        sw_state.current_time = 1
+        sw_state.ts = 1
         sw_state.env_state.season_order = 0.0
         sw_state.current_year += 1
         sw_state.next_run = nothing
@@ -341,10 +341,10 @@ function check_run(sw_state::SwState, date::Date)
     else
         if date == sw_state.next_run
             sw_state.next_run += sw_state.timestep
-            sw_state.current_time += 1
+            sw_state.ts += 1
             return true
         elseif environmental_order_dates(date, sw_state.season_end)
-            sw_state.current_time += 1
+            sw_state.ts += 1
             return true
         else
             return false

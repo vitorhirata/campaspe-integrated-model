@@ -15,7 +15,7 @@ allocated.
 """
 function calc_allocation(sw_state::SwState, farm_orders::Dict, dam_vol::Float64, rolling_dam_level::Float64)
     # Calculate storage river losses
-    ts = sw_state.current_time
+    ts = sw_state.ts
     river_loss = sum([value[ts] for value in values(sw_state.water_losses)])
 
     # Calculate usable dam volume
@@ -350,7 +350,7 @@ Does this for the entire catchment.
 - `sw_state` : surface water state
 """
 function calc_next_season_reserves!(sw_state::SwState)::Nothing
-    ts = sw_state.current_time
+    ts = sw_state.ts
     op_reserve = 0.0
     hr_reserve = 0.0
 
@@ -396,8 +396,8 @@ function set_reserves!(sw_state::SwState, hr::Float64, op::Float64)::Nothing
     sw_state.reserves["op"][sw_state.current_year + 1] = op
 
     # Set time series reserves (matches Python: ts pattern for current timestep)
-    sw_state.ts_reserves["HR"][sw_state.current_time] = hr
-    sw_state.ts_reserves["op"][sw_state.current_time] = op
+    sw_state.ts_reserves["HR"][sw_state.ts] = hr
+    sw_state.ts_reserves["op"][sw_state.ts] = op
 
     return nothing
 end
@@ -573,7 +573,7 @@ This function:
 - `Float64` : total water ordered for "other" systems in ML
 """
 function calc_other_orders!(sw_state::SwState)::Float64
-    if sw_state.current_time == 0
+    if sw_state.ts == 0
         return 0.0
     end
 
@@ -583,7 +583,7 @@ function calc_other_orders!(sw_state::SwState)::Float64
     for (zone_id, z_info) in sw_state.zone_info
         if z_info["zone_type"] == "other"
             # Calculate additional allocation if any
-            total_water_ordered = sum(z_info["ts_water_orders"]["campaspe"][1:sw_state.current_time])
+            total_water_ordered = sum(z_info["ts_water_orders"]["campaspe"][1:sw_state.ts])
             alloc_to_date_hr = z_info["allocated_to_date"]["campaspe"]["HR"]
             alloc_to_date_lr = z_info["allocated_to_date"]["campaspe"]["LR"]
 
@@ -591,7 +591,7 @@ function calc_other_orders!(sw_state::SwState)::Float64
 
             # Release any available allocation as soon as able
             if (z_info["avail_allocation"]["campaspe"]["LR"] + z_info["avail_allocation"]["campaspe"]["HR"]) > 0.0
-                z_info["ts_water_orders"]["campaspe"][sw_state.current_time] = avail_hr + avail_lr
+                z_info["ts_water_orders"]["campaspe"][sw_state.ts] = avail_hr + avail_lr
                 hr_release += avail_hr
                 lr_release += avail_lr
                 z_info["avail_allocation"]["campaspe"]["HR"] = 0.0
@@ -602,7 +602,7 @@ function calc_other_orders!(sw_state::SwState)::Float64
             end
 
             # Subtract water orders from carryover state if available
-            update_carryover_state!(z_info, sw_state.current_time)
+            update_carryover_state!(z_info, sw_state.ts)
         end
     end
 

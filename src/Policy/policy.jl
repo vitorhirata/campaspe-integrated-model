@@ -42,7 +42,7 @@ function run_policy(
     release_timeframe::Int64
 )::Tuple{Union{Float64, Bool}, Dict{String, Any}}
     # Set projected inflow for current timestep
-    policy_state.sw_state.proj_inflow[policy_state.sw_state.current_time] = proj_inflow
+    policy_state.sw_state.proj_inflow[policy_state.sw_state.ts] = proj_inflow
 
     # Groundwater policy inputs - GW model requires percentage of HR entitlement for Campaspe
     policy_state.gw_state.sw_perc_entitlement = policy_state.sw_state.perc_entitlement["campaspe"]["HR"]

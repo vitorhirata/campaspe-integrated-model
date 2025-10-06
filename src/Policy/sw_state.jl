@@ -3,7 +3,7 @@
     first_release::Date = Date(1900, 8, 15) # First water release date (year ignored)
     season_start::Date = Date(1900, 7, 1) # Season start/first calculation date (year ignored)
     timestep::Day = Day(7) # Length of the model time step
-    current_time::Int64 = 1 # Current timestep
+    ts::Int64 = 1 # Current timestep
     current_year::Int64 = 1 # Current year
     next_run::Union{Date, Nothing} = nothing # Date interval for next run
     gmw_share::Float64 = 0.82 # Water under control of GM-Water
