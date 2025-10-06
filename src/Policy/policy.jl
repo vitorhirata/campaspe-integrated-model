@@ -1,10 +1,10 @@
 include("gw_state.jl")
-include("groundwater_policy.jl")
+include("gw_update.jl")
 include("environment.jl")
 include("sw_state.jl")
 include("sw_allocation.jl")
 include("sw_goulburn_allocation.jl")
-include("surface_water_policy.jl")
+include("sw_update.jl")
 include("policy_state.jl")
 
 """
@@ -28,7 +28,7 @@ Run policy models.
 # Returns
 Tuple of (daily dam release in ML, dict of farm allocations)
 """
-function run_policy(
+function update_policy(
     policy_state::PolicyState,
     ts::Int64,
     dt::Date,
