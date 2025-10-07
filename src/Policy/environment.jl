@@ -1,20 +1,17 @@
 @with_kw mutable struct EnvironmentState
-    ts::Int64 = 1
     season_order::Float64 = 0.0
     water_order::Float64 = 0.0
     fixed_annual_losses::Float64
     hr_entitlement::Float64
     lr_entitlement::Float64
-    model_run_range::StepRange{Date, Period}
 end
 
 """
-    EnvironmentState(model_run_range::StepRange{Date, Period}, hr_entitlement::Float64, lr_entitlement::Float64; fixed_annual_losses::Float64=1656.0)
+    EnvironmentState(hr_entitlement::Float64, lr_entitlement::Float64; fixed_annual_losses::Float64=1656.0)
 
 Constructor for EnvironmentState.
 
 # Arguments
-- `model_run_range` : date range of model execution
 - `hr_entitlement` : high reliability entitlement in ML
 - `lr_entitlement` : low reliability entitlement in ML
 - `fixed_annual_losses` : fixed annual losses in ML (default: 1656.0)
@@ -22,13 +19,11 @@ Constructor for EnvironmentState.
 # Notes
 HR entitlement is adjusted by subtracting fixed_annual_losses.
 """
-function EnvironmentState(model_run_range::StepRange{Date, Period}, hr_entitlement::Float64,
-                         lr_entitlement::Float64; fixed_annual_losses::Float64=1656.0)
+function EnvironmentState(hr_entitlement::Float64, lr_entitlement::Float64; fixed_annual_losses::Float64=1656.0)
     return EnvironmentState(
         fixed_annual_losses=fixed_annual_losses,
         hr_entitlement=hr_entitlement - fixed_annual_losses,
-        lr_entitlement=lr_entitlement,
-        model_run_range=model_run_range
+        lr_entitlement=lr_entitlement
     )
 end
 

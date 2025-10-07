@@ -7,7 +7,6 @@
     current_year::Int64 = 1 # Current year
     next_run::Union{Date, Nothing} = nothing # Date interval for next run
     gmw_share::Float64 = 0.82 # Water under control of GM-Water
-    coliban_share::Float64 = round(1 - gmw_share; digits=2) # Water under control of Coliban
     worst_case_loss::Int64 = 18560 # Worst case operational losses in ML
     min_op_vol::Int64 = 1024 # Minimum dam operation volume, in ML
     usable_dam_vol::Float64 = 0 # Usable dam volume
@@ -19,7 +18,6 @@
     cumu_allocation::Dict{String, Dict{String, Float64}} = allocation_template() # Cumulative allocations
     perc_entitlement::Dict{String, Dict{String, Float64}} = allocation_template() # Percentage entitlement
     adj_perc_entitlement::Dict{String, Any} = allocation_template() # Adjusted percentage
-    carry_commitment::Dict{Int, Float64} = Dict() # Carryover commitments by year
     other_hr_entitlements::Float64 # Other system high reliability entitlements
     other_lr_entitlements::Float64 # Other system low reliability entitlements
     hr_entitlement::Float64 # Total high reliability entitlement
@@ -77,7 +75,7 @@ function SwState(
     # Environmental entitlements
     env_hr_entitlement::Float64 = sum(env_systems.HR_Entitlement)
     env_lr_entitlement::Float64 = sum(env_systems.LR_Entitlement)
-    env_state = EnvironmentState(model_run_range, env_hr_entitlement, env_lr_entitlement)
+    env_state = EnvironmentState(env_hr_entitlement, env_lr_entitlement)
 
     #Other entitlements
     other_hr_entitlements = sum(other_systems.HR_Entitlement)

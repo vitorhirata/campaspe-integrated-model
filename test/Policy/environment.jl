@@ -1,17 +1,14 @@
 @testset "#create EnvironmentState" begin
     @testset "constructor correctly initializes state" begin
-        model_run_range::StepRange{Date, Period} = Date("1968-05-01"):Week(1):Date("1988-04-30")
         hr_entitlement = 20000.0
         lr_entitlement = 5000.0
 
-        env_state = CampaspeIntegratedModel.EnvironmentState(model_run_range, hr_entitlement, lr_entitlement)
+        env_state = CampaspeIntegratedModel.EnvironmentState(hr_entitlement, lr_entitlement)
 
         @test typeof(env_state) == CampaspeIntegratedModel.EnvironmentState
-        @test env_state.model_run_range == model_run_range
         @test env_state.hr_entitlement == hr_entitlement - 1656.0  # fixed_annual_losses subtracted
         @test env_state.lr_entitlement == lr_entitlement
         @test env_state.fixed_annual_losses == 1656.0
-        @test env_state.ts == 1
         @test env_state.season_order == 0.0
         @test env_state.water_order == 0.0
     end
@@ -19,11 +16,10 @@ end
 
 @testset "#run_model!" begin
     @testset "simple winterlow deficit on July 1" begin
-        model_run_range::StepRange{Date, Period} = Date("1970-07-01"):Day(1):Date("1971-06-30")
         hr_entitlement = 20000.0
         lr_entitlement = 5000.0
 
-        env_state = CampaspeIntegratedModel.EnvironmentState(model_run_range, hr_entitlement, lr_entitlement)
+        env_state = CampaspeIntegratedModel.EnvironmentState(hr_entitlement, lr_entitlement)
 
         # July 1st with rochester flow below 120 ML/d
         ts = 1
