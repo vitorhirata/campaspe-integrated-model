@@ -8,5 +8,6 @@ using GeoDataFrames
 using Parameters
 
 include("Policy/policy.jl")
+include("Farm/farm.jl")
 
 end

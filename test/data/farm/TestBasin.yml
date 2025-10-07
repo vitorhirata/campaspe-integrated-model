@@ -1,0 +1,5 @@
+name: TestBasin
+component: Basin
+
+# Paths to zone specs
+zone_spec: ["data/farm/zones/TestZone.yml"]
