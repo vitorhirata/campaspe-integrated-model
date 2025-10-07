@@ -2,7 +2,7 @@
 
 julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "743d133635bd16e18a86866af529ca813cc16f5e"
+project_hash = "c0ec38251575e0b6f7832efbc94000d8aaf7e80c"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "60665b326b75db6517939d0e1875850bc4a54368"
@@ -2561,7 +2561,9 @@ version = "0.7.6"
 
 [[deps.Streamfall]]
 deps = ["BlackBoxOptim", "Bootstrap", "BoxCoxTrans", "CSV", "Cairo", "CodecZlib", "Compose", "DataFrames", "DataStructures", "Dates", "Distributed", "Distributions", "Downloads", "Graphs", "JSON", "LaTeXStrings", "MetaGraphs", "Mixers", "ModelParameters", "OnlineStats", "OrderedCollections", "Parameters", "PrettyTables", "Serialization", "Setfield", "Statistics", "StatsBase", "StatsFuns", "Tar", "Test", "YAML", "ZipFile"]
-git-tree-sha1 = "83302383cceb9c380e6c21d9b1165cfd34d33711"
+git-tree-sha1 = "249bf868cfaba8613e832451989382ee81869847"
+repo-rev = "main"
+repo-url = "https://github.com/vitorhirata/Streamfall.jl.git"
 uuid = "09d4d480-e905-4803-959d-af438f1c2811"
 version = "0.6.0"
 

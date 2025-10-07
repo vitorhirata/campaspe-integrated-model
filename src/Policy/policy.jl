@@ -115,3 +115,33 @@ function get_avail_farm_allocations(policy_state::PolicyState)::Dict{String, Any
 
     return allocations
 end
+
+
+"""
+    get_rolling_dam_level(dt::Date, years::Int64, dam_levels::Vector{Float64}, datetimes::Vector{Date})::Float64
+
+Calculate the average of dam levels over a specified number of years.
+Computes the rolling average for the previous `years` from current datetime (right-aligned).
+
+# Arguments
+- `dt::Date` : current datetime
+- `years::Int64` : years over which to generate a rolling average (right aligned)
+- `dam_levels::Vector{Float64}` : daily dam levels
+- `datetimes::Vector{Date}` : datetimes that represent model run time frame
+
+# Returns
+- `Float64` : rolling average of dam level
+"""
+function get_rolling_dam_level(dt::Date, years::Int64, dam_levels::Vector{Float64}, datetimes::Vector{Date})::Float64
+    # Calculate start date by subtracting years from current date
+    start_date = dt - Dates.Year(years)
+
+    # Find indices in the date range [start_date, dt]
+    window_indices = findall(d -> start_date <= d <= dt, datetimes)
+
+    # Extract dam levels for this window
+    data = dam_levels[window_indices]
+
+    # Return mean of dam levels in the window
+    return mean(data)
+end
