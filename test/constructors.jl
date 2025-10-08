@@ -8,7 +8,7 @@ function create_gw_state()
     carryover_period = 1
     max_carryover_perc = 0.25
     restriction_type = "default"
-    data_path = "/home/vitor/Code/campaspe-integrated-model/data/"
+    data_path = "/home/vitor/Code/campaspe-integrated-model/data/policy/"
 
     gw_state = CampaspeIntegratedModel.GwState(
         zone_info, carryover_period, max_carryover_perc, restriction_type, data_path
