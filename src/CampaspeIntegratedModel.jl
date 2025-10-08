@@ -11,5 +11,6 @@ using StatsBase
 include("Policy/policy.jl")
 include("Farm/farm.jl")
 include("SurfaceWater/surface_water.jl")
+include("Groundwater/groundwater.jl")
 
 end
