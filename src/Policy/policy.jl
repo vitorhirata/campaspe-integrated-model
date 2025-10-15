@@ -32,7 +32,7 @@ function update_policy(
     policy_state::PolicyState,
     ts::Int64,
     dt::Date,
-    f_orders::Dict,
+    f_orders::Dict{String, Float64},
     gw_orders::Dict{String, Float64},
     dam_vol::Float64,
     dam_rolling_level::Float64,

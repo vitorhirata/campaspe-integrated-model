@@ -377,7 +377,7 @@ If the date is not found in the DataFrame, returns 0.0.
 """
 function get_dam_extraction(sw_state::SwState, date::Date)::Float64
     # Try to find extraction for this date
-    if date in sw_state.dam_ext.Time
+    if date in sw_state.dam_ext.Date
         row_idx = findfirst(==(date), sw_state.dam_ext.Date)
         return sw_state.dam_ext[row_idx, "Extraction (ML)"]
     else
