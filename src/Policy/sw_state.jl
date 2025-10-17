@@ -1,43 +1,54 @@
 @with_kw mutable struct SwState
-    season_end::Date = Date(1900, 4, 30) # Season end date (year ignored)
-    first_release::Date = Date(1900, 8, 15) # First water release date (year ignored)
-    season_start::Date = Date(1900, 7, 1) # Season start/first calculation date (year ignored)
-    timestep::Day = Day(7) # Length of the model time step
-    ts::Int64 = 1 # Current timestep
-    current_year::Int64 = 1 # Current year
-    next_run::Union{Date, Nothing} = nothing # Date interval for next run
+    # Timing variables
+    season_start::Date = Date(1900, 7, 1) # July 1 (irrigation season start and allocation computed). Year ignored
+    first_release::Date = Date(1900, 8, 15) # August 15 (first release date). Year ignored
+    season_end::Date = Date(1900, 4, 30) # April 30 (irrigation season end).  Year ignored
+    timestep::Day = Day(7) # Length of the model time step. TODO: Check if 7 or 14 days
+    ts::Int64 = 1 # Day timestep counter
+    current_year::Int64 = 1 # Year timestep counter
+    next_run::Union{Date, Nothing} = nothing # Next scheduled run date
+    model_run_range::StepRange{Date, Period} # Date range for model execution
+
+    # Dam and GMW parameters
     gmw_share::Float64 = 0.82 # Water under control of GM-Water
     worst_case_loss::Int64 = 18560 # Worst case operational losses in ML
     min_op_vol::Int64 = 1024 # Minimum dam operation volume, in ML
-    usable_dam_vol::Float64 = 0 # Usable dam volume
-    total_water_orders::Float64 = 0.0 # Total water orders for entire catchment for a season
-    total_allocated::Float64 = 0.0 # Total water volume allocated
-    goulburn_increment::Float64 = 0.0 # Weekly increment for "high" allocation seasons
-    goulburn_alloc_perc::Float64 = 0.0
-    avail_allocation::Dict{String, Dict{String, Float64}} = allocation_template() # Available allocations
-    cumu_allocation::Dict{String, Dict{String, Float64}} = allocation_template() # Cumulative allocations
-    perc_entitlement::Dict{String, Dict{String, Float64}} = allocation_template() # Percentage entitlement
-    adj_perc_entitlement::Dict{String, Any} = allocation_template() # Adjusted percentage
+    usable_dam_vol::Float64 = 0.0 # Usable dam volume
+
+    # Allocation and entitlements
+    avail_allocation::Dict{String, Dict{String, Float64}} = allocation_template() # Currently available allocations
+    cumu_allocation::Dict{String, Dict{String, Float64}} = allocation_template() # Cumulative allocations over time
+    perc_entitlement::Dict{String, Dict{String, Float64}} = allocation_template() # Percentage of entitlement allocated
+    adj_perc_entitlement::Dict{String, Any} = allocation_template() # Perc of entitlement allocated, including carryover
     other_hr_entitlements::Float64 # Other system high reliability entitlements
     other_lr_entitlements::Float64 # Other system low reliability entitlements
     hr_entitlement::Float64 # Total high reliability entitlement
     lr_entitlement::Float64 # Total low reliability entitlement
     farm_hr_entitlement::Float64 # Farm high reliability entitlement
     farm_lr_entitlement::Float64 # Farm low reliability entitlement
+    total_water_orders::Float64 = 0.0 # Total water orders for entire catchment for a season
+    total_allocated::Float64 = 0.0 # Total water volume allocated
+
+    # Time series data
     gmw_vol::Vector{Float64} # GM-Water volume by timestep
     carryover_state::Vector{Float64} # Carryover state by year
     yearly_carryover::Vector{Float64} # Yearly carryover volumes
     proj_inflow::Vector{Float64} # Projected inflows by timestep
     ts_reserves::Dict{String, Vector{Float64}} # Time series reserves by week (HR, LR, operational)
     reserves::Dict{String, Vector{Float64}} # Time series reserves by year (HR, LR, operational)
-    water_losses::Dict{String, Vector{Float64}} # Water losses from lake and operations
-    model_run_range::StepRange{Date, Period} # Date range for model execution
+    water_losses::Dict{String, Vector{Float64}} # Water losses from lake and operations time series by week
+
+    # Goulburn catchment
     goulburn_alloc_scenario::String # Allocation scenario for Goulburn catchment
     goulburn_wet_scenario::Bool = false
     goulburn_alloc_func::Union{Function, Nothing} = nothing
-    dam_ext::DataFrame # Water extractions not accounted for by discharge
+    goulburn_increment::Float64 = 0.0 # Weekly increment for "high" allocation seasons
+    goulburn_alloc_perc::Float64 = 0.0 # Goulburn allocation percentage
+
+    # Zone, dam extration and environment information
     zone_info::Dict{String, Any} # Information about farm zones
     env_state::EnvironmentState # Environmental State struct
+    dam_ext::DataFrame # Water extractions not accounted for by discharge
 end
 
 """
@@ -105,24 +116,9 @@ time series arrays for water orders, carryover states, allocations, and reserves
 function create_zone_info(zone_info::Dict{String, Any}, total_n_weeks::Int64, total_n_years::Int64,
     env_systems::DataFrame, other_systems::DataFrame
 )::Dict{String, Any}
-    add_info = Dict(
-        # water ordered in specific time step
-        "ts_water_orders"=>Dict("campaspe"=>zeros(total_n_weeks), "goulburn"=>zeros(total_n_weeks)),
-        # Carryover within year (should only decrease)
-        "carryover_state"=>Dict("HR"=>0.0, "LR"=>0.0),
-        "yearly_carryover"=>Dict("HR"=>zeros(total_n_years), "LR"=>zeros(total_n_years)), # Carryover over total_n_years
-        # Allocated amount available
-        "avail_allocation"=>allocation_template(),
-        # Total vol allocated to zone
-        "allocated_to_date"=>allocation_template(),
-        "perc_Ent"=>allocation_template(),
-        "reserves"=>Dict("HR"=>zeros(total_n_years), "op"=>zeros(total_n_years)), # Water reserves
-        "zone_share"=>0.0,
-    )
     for (key, value) in zone_info
-        zone_info[key] = merge(value, add_info)
+        zone_info[key] = merge(value, additional_zone_info(total_n_weeks, total_n_years))
         zone_info[key]["zone_type"] = "farm"
-
     end
 
     # Set environmental and other zones
@@ -138,7 +134,7 @@ function create_zone_info(zone_info::Dict{String, Any}, total_n_weeks::Int64, to
             "name"=> zone["Water System"],
             "zone_type"=> "environmental"
         )
-        zone_info[zone["Water System"]] = merge(zone_info[zone["Water System"]], add_info)
+        zone_info[zone["Water System"]] = merge(zone_info[zone["Water System"]], additional_zone_info(total_n_weeks, total_n_years))
     end
 
     for zone in eachrow(other_systems)
@@ -153,7 +149,7 @@ function create_zone_info(zone_info::Dict{String, Any}, total_n_weeks::Int64, to
             "name"=> zone["Water System"],
             "zone_type"=> "other"
         )
-        zone_info[zone["Water System"]] = merge(zone_info[zone["Water System"]], add_info)
+        zone_info[zone["Water System"]] = merge(zone_info[zone["Water System"]], additional_zone_info(total_n_weeks, total_n_years))
     end
     return zone_info
 end
@@ -229,5 +225,36 @@ function allocation_template()::Dict{String, Dict{String, Float64}}
             "HR"=>0.0,
             "LR"=>0.0
         )
+    )
+end
+
+"""
+    additional_zone_info(total_n_weeks::Int64, total_n_years::Int64)::Dict{String, Any}
+
+Create new dictionary instance with additional tracking information for a single zone.
+This function creates fresh dictionary instances to avoid shared references between zones.
+
+# Arguments
+- `total_n_weeks` : total number of weeks for time series arrays.
+- `total_n_years` : total number of years for time series arrays.
+
+# Returns
+- `Dict{String, Any}` : dictionary with zone tracking information including water orders,
+  carryover states, allocations, and reserves.
+"""
+function additional_zone_info(total_n_weeks::Int64, total_n_years::Int64)::Dict{String, Any}
+    return Dict(
+        # water ordered in specific time step
+        "ts_water_orders"=>Dict("campaspe"=>zeros(total_n_weeks), "goulburn"=>zeros(total_n_weeks)),
+        # Carryover within year (should only decrease)
+        "carryover_state"=>Dict("HR"=>0.0, "LR"=>0.0),
+        "yearly_carryover"=>Dict("HR"=>zeros(total_n_years), "LR"=>zeros(total_n_years)), # Carryover over total_n_years
+        # Allocated amount available
+        "avail_allocation"=>allocation_template(),
+        # Total vol allocated to zone
+        "allocated_to_date"=>allocation_template(),
+        "perc_Ent"=>allocation_template(),
+        "reserves"=>Dict("HR"=>zeros(total_n_years), "op"=>zeros(total_n_years)), # Water reserves
+        "zone_share"=>0.0,
     )
 end

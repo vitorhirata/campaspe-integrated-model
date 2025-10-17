@@ -209,10 +209,12 @@ end
         @test sw_state.goulburn_alloc_perc >= 0.0
         @test sw_state.goulburn_alloc_perc <= 1.0
 
-        # Test that zone allocations reflect HR percentage
+        # Test that zone allocations reflect HR percentage (farm zones only)
         for z_info in values(sw_state.zone_info)
-            @test z_info["allocated_to_date"]["campaspe"]["HR"] > 0.0
-            @test z_info["allocated_to_date"]["campaspe"]["LR"] == 0.0
+            if z_info["zone_type"] == "farm"
+                @test z_info["allocated_to_date"]["campaspe"]["HR"] > 0.0
+                @test z_info["allocated_to_date"]["campaspe"]["LR"] == 0.0
+            end
         end
     end
 end

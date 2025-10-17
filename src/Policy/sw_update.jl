@@ -20,7 +20,7 @@ function update_surface_water(
         sw_state::SwState, date::Date, global_timestep::Int64, f_orders::Dict,
         rochester_flow::Vector{Float64}, dam_vol::Float64, rolling_dam_level::Float64, release_timeframe::Int64
 )::Union{Float64, Bool}
-    if !check_run(sw_state, date)
+    if !is_date_valid(sw_state, date)
         return false
     end
 
@@ -312,7 +312,7 @@ function dam_release(sw_state::SwState, date::Date, water_orders::Dict, other_re
 end
 
 """
-    check_run(sw_state::SwState, date::Date)
+    is_date_valid(sw_state::SwState, date::Date)
 
 Check if surface water policy model should run and updates times.
 
@@ -323,7 +323,7 @@ Check if surface water policy model should run and updates times.
 # Returns
 Boolean defining if the model should run.
 """
-function check_run(sw_state::SwState, date::Date)
+function is_date_valid(sw_state::SwState, date::Date)
     if sw_state.next_run == nothing
         if month(date) == month(sw_state.season_start) && day(date) == day(sw_state.season_start)
             sw_state.season_end = Date(year(date) + 1, month(sw_state.season_end), day(sw_state.season_end))
@@ -354,10 +354,9 @@ end
 
 function environmental_order_dates(date::Date, season_end::Date)::Bool
     return (
-        (month(date) in [2, 5] && day(date) == 1) ||
+        (month(date) in [2, 5, 7] && day(date) == 1) ||
         (month(date) == 3 && day(date) == 16) ||
         (month(date) in [8, 11] && day(date) == 25) ||
-        (month(date) == 7 && day(date) == 1) ||
         (date == season_end)
     )
 end

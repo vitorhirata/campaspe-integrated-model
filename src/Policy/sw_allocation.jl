@@ -245,7 +245,6 @@ function later_allocation(sw_state::SwState, year::Int64, ts::Int64, gmw_vol::Fl
         avail_lr = z_info["avail_allocation"]["campaspe"]["LR"]
 
         avail_lr, avail_hr, leftover = prop_subtract(avail_lr, avail_hr, leftover)
-        # TODO: Bug happening here. The tests have zero f_orders because adding orders raises errors in this assert.
         @assert isapprox(leftover, 0.0) "Cannot order more than available allocation. Zone: $zone, " *
             "Water ordered: $(z_info["ts_water_orders"]["campaspe"][ts]), Leftover: $leftover, " *
             "Avail HR: $avail_hr, Avail LR: $avail_lr, Zone type: $(z_info["zone_type"])"
@@ -573,7 +572,7 @@ This function:
 - `Float64` : total water ordered for "other" systems in ML
 """
 function calc_other_orders!(sw_state::SwState)::Float64
-    if sw_state.ts == 0
+    if sw_state.ts == 1
         return 0.0
     end
 
