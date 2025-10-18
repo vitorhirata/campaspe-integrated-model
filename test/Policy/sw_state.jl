@@ -23,6 +23,7 @@
                     "farm_HR"=>100.0, "farm_LR"=>100.0
                 ),
                 "water_system"=>"Campaspe Irrigation Area",
+                "zone_id" => "2",
                 "regulation_zone"=>"Regulated 4C",
                 "areas"=>Dict("crop_ha"=>10000.0, "zone_ha"=>100000.0),
                 "name"=>"Bamawm cropping regulated 4C trading"
@@ -32,6 +33,7 @@
                     "camp_HR"=>100.0, "camp_LR"=>100.0, "goul_HR"=>100.0, "goul_LR"=>100.0,
                     "farm_HR"=>100.0, "farm_LR"=>100.0
                 ),
+                "zone_id" => "3",
                 "water_system"=>"Campaspe River (Eppalock to Weir)",
                 "regulation_zone"=>"Unregulated 170",
                 "areas"=>Dict("crop_ha"=>10000.0, "zone_ha"=>100000.0),

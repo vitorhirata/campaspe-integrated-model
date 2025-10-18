@@ -9,7 +9,7 @@ allocated.
 
 # Arguments
 - `sw_state` : surface water state structure
-- `farm_orders` : dictionary of surface water orders for each farm zone
+- `farm_orders` : dictionary of surface water orders for each farm zone (zone_id as key)
 - `dam_vol` : dam volume in ML
 - `rolling_dam_level` : rolling average of dam level
 """
@@ -119,22 +119,24 @@ Water orders are subtracted from the Goulburn system first, then carryovers, the
 - `year` : count of year in model run (not year of current datetime)
 - `ts` : current time step (1-based)
 - `gmw_vol` : volume share for Goulburn-Murray Water
-- `farm_orders` : dict of farm orders based on zone name as key
+- `farm_orders` : dict of farm orders based on zone_id as key
 """
 function later_allocation(sw_state::SwState, year::Int64, ts::Int64, gmw_vol::Float64, farm_orders::Dict)
     # Bias water orders to Goulburn system if able
     for (zone, z_info) in sw_state.zone_info
-        if haskey(farm_orders, zone)
+        # Check if this is a farm zone with orders (farm_orders uses zone_id as keys)
+        zone_id = get(z_info, "zone_id", "-1")
+        if haskey(farm_orders, zone_id)
             if irrigation_area(z_info)
                 hr_vol = z_info["avail_allocation"]["goulburn"]["HR"]
-                goulb_order = farm_orders[zone]
+                goulb_order = farm_orders[zone_id]
 
                 if (goulb_order > 0.0) && (hr_vol >= goulb_order)
                     hr_vol = hr_vol - goulb_order
                     z_info["avail_allocation"]["goulburn"]["HR"] = hr_vol
-                    farm_orders[zone] = 0.0
+                    farm_orders[zone_id] = 0.0
                 elseif goulb_order > 0.0
-                    farm_orders[zone] = goulb_order - hr_vol
+                    farm_orders[zone_id] = goulb_order - hr_vol
                     goulb_order = hr_vol
                     z_info["avail_allocation"]["goulburn"]["HR"] = 0.0
                 else
@@ -233,8 +235,9 @@ function later_allocation(sw_state::SwState, year::Int64, ts::Int64, gmw_vol::Fl
     # Update zone allocation information
     zonal_lr_alloc, zonal_hr_alloc = 0.0, 0.0
     for (zone, z_info) in sw_state.zone_info
-        if haskey(farm_orders, zone)
-            z_info["ts_water_orders"]["campaspe"][ts] = farm_orders[zone]
+        zone_id = get(z_info, "zone_id", "-1")
+        if haskey(farm_orders, zone_id)
+            z_info["ts_water_orders"]["campaspe"][ts] = farm_orders[zone_id]
         end
 
         # Subtract water orders from carryover state if available

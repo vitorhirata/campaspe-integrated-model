@@ -6,7 +6,7 @@
         # Use a date that is NOT the season start (July 1) and next_run is nothing
         date = Date("1970-06-15")
         global_timestep = 1
-        f_orders = Dict("Zone1" => 100.0)
+        f_orders = Dict("1" => 100.0)
         rochester_flow = fill(150.0, 365)
         dam_vol = 200000.0
         rolling_dam_level = 175.0
@@ -29,7 +29,7 @@
         # Season start date
         date = Date("1970-07-01")
         global_timestep = 1
-        f_orders = Dict("Zone1" => 10.0, "Zone2" => 10.0)  # Small orders to allow reserves to be met
+        f_orders = Dict("1" => 10.0, "2" => 10.0)  # Small orders to allow reserves to be met
         rochester_flow = fill(150.0, 365)
         dam_vol = 200000.0
         rolling_dam_level = 175.0
@@ -60,14 +60,14 @@
         # Initialize the season first (run on July 1)
         date_start = Date("1970-07-01")
         CampaspeIntegratedModel.update_surface_water(
-            sw_state, date_start, 1, Dict("Zone1" => 0.0, "Zone2" => 0.0),  # No orders initially
+            sw_state, date_start, 1, Dict("1" => 0.0, "2" => 0.0),  # No orders initially
             fill(100.0, 365), 200000.0, 100000.0, 7
         )
 
         # Now test mid-season (a week later) - use zero orders to avoid allocation issues
         date_mid = Date("1970-07-08")
         global_timestep = 8
-        f_orders = Dict("Zone1" => 10.0, "Zone2" => 10.0)
+        f_orders = Dict("1" => 10.0, "2" => 10.0)
         rochester_flow = fill(100.0, 365)  # Below 120 target for winterlow
         dam_vol = 195000.0
         rolling_dam_level = 175.0
@@ -106,14 +106,14 @@
         # Initialize the season
         date_start = Date("1970-07-01")
         CampaspeIntegratedModel.update_surface_water(
-            sw_state, date_start, 1, Dict("Zone1" => 0.0, "Zone2" => 0.0),  # No orders initially
+            sw_state, date_start, 1, Dict("1" => 0.0, "2" => 0.0),  # No orders initially
             fill(150.0, 365), 200000.0, 175.0, 7
         )
 
         # Call on end of season date (one week later) with zero orders
         date_end = Date("1970-07-08")
         global_timestep = 8
-        f_orders = Dict("Zone1" => 10.0, "Zone2" => 10.0)  # Zero orders for testing
+        f_orders = Dict("1" => 10.0, "2" => 10.0)  # Zero orders for testing
         rochester_flow = fill(150.0, 365)
         dam_vol = 180000.0
         rolling_dam_level = 175.0

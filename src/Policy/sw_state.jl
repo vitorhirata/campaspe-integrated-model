@@ -47,6 +47,7 @@
 
     # Zone, dam extration and environment information
     zone_info::Dict{String, Any} # Information about farm zones
+    zone_id_to_name::Dict{String, String} # Lookup map from zone_id to zone_name (for farm zones only)
     env_state::EnvironmentState # Environmental State struct
     dam_ext::DataFrame # Water extractions not accounted for by discharge
 end
@@ -83,6 +84,13 @@ function SwState(
     hr_entitlement, lr_entitlement, farm_hr_entitlement, farm_lr_entitlement = compute_entitlements(zone_info,
         env_systems, other_systems)
 
+    # Create zone_id to zone_name lookup for farm zones
+    zone_id_to_name = Dict{String, String}(
+        z_info["zone_id"] => zone_name
+        for (zone_name, z_info) in zone_info
+        if z_info["zone_type"] == "farm"
+    )
+
     # Environmental entitlements
     env_hr_entitlement::Float64 = sum(env_systems.HR_Entitlement)
     env_lr_entitlement::Float64 = sum(env_systems.LR_Entitlement)
@@ -93,9 +101,9 @@ function SwState(
     other_lr_entitlements = sum(other_systems.LR_Entitlement)
 
     return SwState(model_run_range=model_run_range, goulburn_alloc_scenario=goulburn_alloc_scenario, dam_ext=dam_ext,
-        zone_info=zone_info, gmw_vol=gmw_vol, carryover_state=carryover_state, yearly_carryover=yearly_carryover,
-        proj_inflow=proj_inflow,ts_reserves=ts_reserves, reserves=reserves, water_losses=water_losses,
-        hr_entitlement=hr_entitlement, lr_entitlement=lr_entitlement,
+        zone_info=zone_info, zone_id_to_name=zone_id_to_name, gmw_vol=gmw_vol, carryover_state=carryover_state,
+        yearly_carryover=yearly_carryover, proj_inflow=proj_inflow,ts_reserves=ts_reserves, reserves=reserves,
+        water_losses=water_losses, hr_entitlement=hr_entitlement, lr_entitlement=lr_entitlement,
         farm_hr_entitlement=farm_hr_entitlement, farm_lr_entitlement=farm_lr_entitlement,
         other_hr_entitlements=other_hr_entitlements, other_lr_entitlements=other_lr_entitlements,
         env_state=env_state

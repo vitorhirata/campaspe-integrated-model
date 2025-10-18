@@ -1,43 +1,6 @@
-function create_test_sw_state()
-    model_run_range::StepRange{Date, Period} = Date("1968-05-01"):Week(1):Date("1988-04-30")
-    goulburn_alloc_scenario = "high"
-    dam_ext = DataFrame(
-        Time = [Date("2020-07-01"), Date("2020-07-08")],
-        Extraction = [10.0, 15.0],
-    )
-    env_systems = DataFrame(
-        "Water System" => ["Campaspe River Environment", "test"],
-        "HR_Entitlement" => [1000.0, 2000.0],
-        "LR_Entitlement" => [4000.0, 9000.0]
-    )
-    other_systems = DataFrame(
-        "Water System" => ["Vic Murray (Zone 7)", "Eppalock Reservoir"],
-        "HR_Entitlement" => [100.0, 0.0],
-        "LR_Entitlement" => [500.0, 1000.0]
-    )
-    zone_info::Dict{String, Any} = Dict(
-        "1" => Dict(
-            "entitlement" => Dict(
-                "camp_HR" => 1000.0, "camp_LR" => 500.0,
-                "goul_HR" => 800.0, "goul_LR" => 0.0,
-                "farm_HR" => 1000.0, "farm_LR" => 500.0
-            ),
-            "water_system" => "Campaspe Irrigation Area",
-            "regulation_zone" => "Regulated 4C",
-            "areas" => Dict("crop_ha" => 5000.0, "zone_ha" => 50000.0),
-            "name" => "Test Zone 1",
-            "zone_type" => "farm"
-        )
-    )
-
-    sw_state = CampaspeIntegratedModel.SwState(model_run_range, zone_info, goulburn_alloc_scenario, dam_ext,
-        env_systems, other_systems)
-    return sw_state
-end
-
 @testset "#first_allocation" begin
     @testset "allocates HR water correctly for year 1" begin
-        sw_state = create_test_sw_state()
+        sw_state = create_sw_state()
         year = 1
         ts = 1
         gmw_vol = 50000.0  # Available GMW volume
@@ -77,7 +40,7 @@ end
 
 @testset "#later_allocation" begin
     @testset "wet scenario with LR allocation (HR at 100%, reserves met)" begin
-        sw_state = create_test_sw_state()
+        sw_state = create_sw_state()
         year = 2  # Use year > 1 so calc_next_season_reserves! will run properly
         ts = 2
 
@@ -150,7 +113,7 @@ end
     end
 
     @testset "dry-median scenario with HR allocation only" begin
-        sw_state = create_test_sw_state()
+        sw_state = create_sw_state()
         sw_state.goulburn_alloc_scenario = "median"
         year = 1
         ts = 2
@@ -221,7 +184,7 @@ end
 
 @testset "#calc_allocation" begin
     @testset "first timestep (ts=1) calls first_allocation" begin
-        sw_state = create_test_sw_state()
+        sw_state = create_sw_state()
         sw_state.ts = 1
         sw_state.current_year = 1
 
@@ -260,7 +223,7 @@ end
     end
 
     @testset "later timestep (ts=2) calls later_allocation" begin
-        sw_state = create_test_sw_state()
+        sw_state = create_sw_state()
         sw_state.ts = 2
         sw_state.current_year = 1
 

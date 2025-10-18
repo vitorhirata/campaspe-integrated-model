@@ -17,7 +17,7 @@ function create_gw_state()
 end
 
 function create_sw_state()
-    model_run_range::StepRange{Date, Period} = Date("1970-07-01"):Day(1):Date("1971-06-30")
+    model_run_range::StepRange{Date, Period} = Date("1970-07-01"):Day(1):Date("1973-06-30")
     goulburn_alloc_scenario = "high"
     dam_ext = DataFrame(
         Time = [Date("1970-07-01")],
@@ -41,6 +41,7 @@ function create_sw_state()
                 "farm_HR" => 1000.0, "farm_LR" => 50.0
             ),
             "water_system" => "Campaspe Irrigation Area",
+            "zone_id" => "1",
             "regulation_zone" => "Regulated 4C",
             "areas" => Dict("crop_ha" => 1000.0, "zone_ha" => 10000.0),
             "name" => "Test Zone 1"
@@ -52,6 +53,7 @@ function create_sw_state()
                 "farm_HR" => 1000.0, "farm_LR" => 50.0
             ),
             "water_system" => "Campaspe Irrigation Area",
+            "zone_id" => "2",
             "regulation_zone" => "Regulated 4A",
             "areas" => Dict("crop_ha" => 1000.0, "zone_ha" => 10000.0),
             "name" => "Test Zone 2"

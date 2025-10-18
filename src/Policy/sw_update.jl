@@ -7,7 +7,7 @@ Updates surface water levels based on extraction orders.
 - `sw_state` : struct with surface water state.
 - `date` : date of current time step.
 - `global_timestep` : global timestep of the model.
-- `f_orders` : dictionary with farm irrigation order for each zone. For example, {zone name: farm irrigation order for each zone}.
+- `f_orders` : dictionary with farm irrigation order for each zone. For example, {zone_id: farm irrigation order}.
 - `rochester_flow` : time series of flow at Rochester, used in environmental policy model.
 - `dam_vol` : dam volume.
 - `rolling_dam_level` : 3 year rolling average dam level.
@@ -24,9 +24,10 @@ function update_surface_water(
         return false
     end
 
-    # Record farm orders for the campaspe
-    for (key, value) in f_orders
-        sw_state.zone_info[key]["ts_water_orders"]["campaspe"][sw_state.ts] = value
+    # Record farm orders for the campaspe (map zone_id to zone_name)
+    for (zone_id, order_value) in f_orders
+        zone_name = sw_state.zone_id_to_name[zone_id]
+        sw_state.zone_info[zone_name]["ts_water_orders"]["campaspe"][sw_state.ts] = order_value
     end
     calc_allocation(sw_state, f_orders, dam_vol, rolling_dam_level)
 

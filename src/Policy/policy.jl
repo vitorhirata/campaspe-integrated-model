@@ -16,7 +16,7 @@ Run policy models.
 - `policy_state` : PolicyState struct containing surface water and groundwater state.
 - `ts` : int, time step of integrated model.
 - `dt` : datetime, datetime object of current time step.
-- `f_orders` : dict, farm surface water orders, volume in ML.
+- `f_orders` : dict, farm surface water orders (zone_id as key), volume in ML.
 - `gw_orders` : dict, groundwater orders, volume in ML.
 - `dam_vol` : float, volume of dam at current time step.
 - `dam_rolling_level` : float, 3-year rolling average of dam level.
