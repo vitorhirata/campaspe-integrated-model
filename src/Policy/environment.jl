@@ -162,7 +162,7 @@ function add_release_on_dt_check!(env_state::EnvironmentState, ts::Int64, date::
 end
 
 """
-    add_release!(env_state::EnvironmentState, rochester_ts_flow::Float64, sequence,
+    add_release!(env_state::EnvironmentState, rochester_ts_flow::Float64, sequence::Vector{Int64},
                  avail_alloc::Float64, other_releases::Float64, block_limit::Int64,
                  target_release::Float64)
 
@@ -174,13 +174,13 @@ If the number of events has not been reached then adds environmental water order
 # Arguments
 - `env_state` : environmental state structure
 - `rochester_ts_flow` : flow at Rochester for the current time step
-- `sequence` : boolean array indicating days with flow above target value
+- `sequence` : integer array of differences between consecutive indices where flow exceeds target
 - `avail_alloc` : total available allocation (HR + LR)
 - `other_releases` : value indicating volume of other releases
 - `block_limit` : value representing how many consecutive days is to be regarded as a single event
 - `target_release` : desired volume to be released
 """
-function add_release!(env_state::EnvironmentState, rochester_ts_flow::Float64, sequence,
+function add_release!(env_state::EnvironmentState, rochester_ts_flow::Float64, sequence::Vector{Int64},
                       avail_alloc::Float64, other_releases::Float64, block_limit::Int64,
                       target_release::Float64)
     block_count = count_consecutive_events(sequence, block_limit)
@@ -196,18 +196,18 @@ function add_release!(env_state::EnvironmentState, rochester_ts_flow::Float64, s
 end
 
 """
-    count_consecutive_events(sequence, block_limit::Int64)::Int64
+    count_consecutive_events(sequence::Vector{Int64}, block_limit::Int64)::Int64
 
 Count number of consecutive events in a sequence.
 
 # Arguments
-- `sequence` : boolean array indicating days with flow above target value
-- `block_limit` : number of consecutive `true` conditions to be regarded as an event
+- `sequence` : integer array of differences between consecutive indices where flow exceeds target
+- `block_limit` : number of consecutive days (value of 1) to be regarded as an event
 
 # Returns
 - `Int64` : count of events
 """
-function count_consecutive_events(sequence::Vector{Bool}, block_limit::Int64)::Int64
+function count_consecutive_events(sequence::Vector{Int64}, block_limit::Int64)::Int64
     count = 1
     block_count = 0
 
