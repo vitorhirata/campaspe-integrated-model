@@ -58,7 +58,8 @@ function licence(gw_state::GwState, date::Date)::Nothing
     if Dates.month(date) == Dates.month(gw_state.season_end) && Dates.day(date) == Dates.day(gw_state.season_end)
         # Maximum carryover is 25% of a year's allocation (see Campaspe Policy doc, page 30)
         tmp = min.(gw_state.zone_info.gw_alloc * 0.25, gw_state.zone_info.gw_alloc - gw_state.zone_info.gw_used)
-        tmp = isapprox(tmp, 0.0, atol=1e-6) ? 0.0 : tmp # Replace values close to 0.0 with 0.0
+        # Replace values close to 0.0 with 0.0 (element-wise)
+        tmp = [isapprox(val, 0.0; atol=1e-6) ? 0.0 : val for val in tmp]
         gw_state.zone_info.gw_carryover = tmp
     end
 
