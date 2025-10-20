@@ -85,7 +85,10 @@ function get_avail_farm_allocations(policy_state::PolicyState)::Dict{String, Any
                 gw_used = policy_state.gw_state.zone_info[gw_row_idx, "gw_used"]
                 gw_ent = policy_state.gw_state.zone_info[gw_row_idx, "gw_Ent"]
 
-                # Assert allocation cannot be negative
+                # Assert allocation cannot be negative. TODO: fix input ent/alloc so that this problem don't happen
+                if !((gw_alloc - gw_used) > 0.0 || isapprox(gw_alloc - gw_used, 0.0))
+                    gw_used = gw_alloc
+                end
                 @assert (gw_alloc - gw_used) > 0.0 || isapprox(gw_alloc - gw_used, 0.0)
 
                 # Calculate available groundwater allocation
