@@ -14,6 +14,22 @@
   inlets: ~
   outlets:
     - "406000"
+406202:
+  node_type: "IHACRESBilinearNode"
+  area: 1985.73
+  parameters:
+    d: 205.9296682315772
+    d2: 1.5219519661190162
+    e: 1.0
+    f: 1.1612900313855028
+    a: 9.999999999175559
+    b: 0.0011479482142380236
+    storage_coef: 9.99999999952744
+    alpha: 0.8917155227322869
+  initial_storage: 100.0
+  inlets: ~
+  outlets:
+    - "406000"
 406000:
   node_type: "DamNode"
   area: 30.11

@@ -1,7 +1,7 @@
 @testset "#update_policy integration test" begin
     @testset "update_policy returns valid allocations" begin
         # Setup test parameters
-        data_path = "../data/policy"
+        data_path = "data/policy/"
         model_run_range::StepRange{Date, Period} = Date("1970-07-01"):Day(1):Date("1971-06-30")
         goulburn_alloc_scenario = "high"
         dam_ext = DataFrame(

@@ -1,7 +1,7 @@
 @testset "#PolicyState constructor" begin
     @testset "creates PolicyState with valid parameters" begin
         # Setup test parameters
-        data_path = "../data/policy"
+        data_path = "data/policy/"
         model_run_range::StepRange{Date, Period} = Date("1970-07-01"):Day(1):Date("1971-06-30")
         goulburn_alloc_scenario = "high"
         dam_ext = DataFrame(

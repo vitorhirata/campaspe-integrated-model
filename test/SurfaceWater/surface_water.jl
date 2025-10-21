@@ -2,7 +2,7 @@
     @testset "runs during irrigation season without errors" begin
         # Load test network and climate data
         network_path = "data/surface_water/two_node_network.yml"
-        climate_path = "data/surface_water/test_climate.csv"
+        climate_path = "data/climate/sw_climate.csv"
 
         climate = CampaspeIntegratedModel.Streamfall.Climate(climate_path, "_rain", "_evap")
         sn = CampaspeIntegratedModel.Streamfall.load_network("TestNetwork", network_path)
@@ -29,7 +29,7 @@
 
     @testset "returns early outside irrigation season" begin
         network_path = "data/surface_water/two_node_network.yml"
-        climate_path = "data/surface_water/test_climate.csv"
+        climate_path = "data/climate/sw_climate.csv"
 
         climate = CampaspeIntegratedModel.Streamfall.Climate(climate_path, "_rain", "_evap")
         sn = CampaspeIntegratedModel.Streamfall.load_network("TestNetwork", network_path)
@@ -50,7 +50,7 @@
 
     @testset "handles extractions correctly" begin
         network_path = "data/surface_water/two_node_network.yml"
-        climate_path = "data/surface_water/test_climate.csv"
+        climate_path = "data/climate/sw_climate.csv"
 
         climate = CampaspeIntegratedModel.Streamfall.Climate(climate_path, "_rain", "_evap")
         sn = CampaspeIntegratedModel.Streamfall.load_network("TestNetwork", network_path)
@@ -70,7 +70,7 @@
 
     @testset "runs multiple timesteps sequentially" begin
         network_path = "data/surface_water/two_node_network.yml"
-        climate_path = "data/surface_water/test_climate.csv"
+        climate_path = "data/climate/sw_climate.csv"
 
         climate = CampaspeIntegratedModel.Streamfall.Climate(climate_path, "_rain", "_evap")
         sn = CampaspeIntegratedModel.Streamfall.load_network("TestNetwork", network_path)

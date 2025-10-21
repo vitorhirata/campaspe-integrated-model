@@ -1,17 +1,6 @@
 @testset "Farm Model - update_farm" begin
     @testset "returns zero orders outside plant season" begin
-        # Load test basin
-        basin_spec = CampaspeIntegratedModel.Agtor.load_spec("data/farm/TestBasin.yml")[:TestBasin]
-        zone_specs = basin_spec[:zone_spec]
-        OptimizingManager = CampaspeIntegratedModel.Agtor.EconManager("optimizing")
-        manage_zones = ((OptimizingManager, Tuple(collect(keys(zone_specs)))), )
-
-        basin = CampaspeIntegratedModel.Agtor.Basin(
-            name=basin_spec[:name],
-            zone_spec=zone_specs,
-            managers=manage_zones,
-            climate_data="data/farm/climate/test_climate.csv"
-        )
+        basin = create_agtor_basin()
 
         # Create farm state with fortnight dates
         farm_dates = Date("2000-05-25"):Day(14):Date("2000-06-30")
@@ -39,18 +28,7 @@
     end
 
     @testset "resets allocations on plant season start" begin
-        # Load test basin
-        basin_spec = CampaspeIntegratedModel.Agtor.load_spec("data/farm/TestBasin.yml")[:TestBasin]
-        zone_specs = basin_spec[:zone_spec]
-        OptimizingManager = CampaspeIntegratedModel.Agtor.EconManager("optimizing")
-        manage_zones = ((OptimizingManager, Tuple(collect(keys(zone_specs)))), )
-
-        basin = CampaspeIntegratedModel.Agtor.Basin(
-            name=basin_spec[:name],
-            zone_spec=zone_specs,
-            managers=manage_zones,
-            climate_data="data/farm/climate/test_climate.csv"
-        )
+        basin = create_agtor_basin()
 
         # Create farm state
         farm_dates = Date("2000-05-25"):Day(14):Date("2000-06-30")
@@ -82,18 +60,7 @@
     end
 
     @testset "runs on fortnight dates during season" begin
-        # Load test basin
-        basin_spec = CampaspeIntegratedModel.Agtor.load_spec("data/farm/TestBasin.yml")[:TestBasin]
-        zone_specs = basin_spec[:zone_spec]
-        OptimizingManager = CampaspeIntegratedModel.Agtor.EconManager("optimizing")
-        manage_zones = ((OptimizingManager, Tuple(collect(keys(zone_specs)))), )
-
-        basin = CampaspeIntegratedModel.Agtor.Basin(
-            name=basin_spec[:name],
-            zone_spec=zone_specs,
-            managers=manage_zones,
-            climate_data="data/farm/climate/test_climate.csv"
-        )
+        basin = create_agtor_basin()
 
         # Create farm state
         farm_dates = Date("2000-05-25"):Day(14):Date("2000-06-30")
@@ -117,18 +84,7 @@
     end
 
     @testset "skips non-fortnight dates" begin
-        # Load test basin
-        basin_spec = CampaspeIntegratedModel.Agtor.load_spec("data/farm/TestBasin.yml")[:TestBasin]
-        zone_specs = basin_spec[:zone_spec]
-        OptimizingManager = CampaspeIntegratedModel.Agtor.EconManager("optimizing")
-        manage_zones = ((OptimizingManager, Tuple(collect(keys(zone_specs)))), )
-
-        basin = CampaspeIntegratedModel.Agtor.Basin(
-            name=basin_spec[:name],
-            zone_spec=zone_specs,
-            managers=manage_zones,
-            climate_data="data/farm/climate/test_climate.csv"
-        )
+        basin = create_agtor_basin()
 
         # Create farm state
         farm_dates = Date("2000-05-25"):Day(14):Date("2000-06-30")
@@ -156,18 +112,7 @@
     end
 
     @testset "ends plant season on harvest date" begin
-        # Load test basin
-        basin_spec = CampaspeIntegratedModel.Agtor.load_spec("data/farm/TestBasin.yml")[:TestBasin]
-        zone_specs = basin_spec[:zone_spec]
-        OptimizingManager = CampaspeIntegratedModel.Agtor.EconManager("optimizing")
-        manage_zones = ((OptimizingManager, Tuple(collect(keys(zone_specs)))), )
-
-        basin = CampaspeIntegratedModel.Agtor.Basin(
-            name=basin_spec[:name],
-            zone_spec=zone_specs,
-            managers=manage_zones,
-            climate_data="data/farm/climate/test_climate.csv"
-        )
+        basin = create_agtor_basin()
 
         # Create farm state
         farm_dates = Date("2000-05-25"):Day(14):Date("2001-02-01")

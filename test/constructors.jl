@@ -8,7 +8,7 @@ function create_gw_state()
     carryover_period = 1
     max_carryover_perc = 0.25
     restriction_type = "default"
-    data_path = "/home/vitor/Code/campaspe-integrated-model/data/policy/"
+    data_path = "data/policy"
 
     gw_state = CampaspeIntegratedModel.GwState(
         zone_info, carryover_period, max_carryover_perc, restriction_type, data_path
@@ -73,3 +73,17 @@ function create_sw_state()
     return sw_state
 end
 
+function create_agtor_basin()
+    basin_spec = CampaspeIntegratedModel.Agtor.load_spec("data/farm/TestBasin.yml")[:Campaspe]
+    zone_specs = basin_spec[:zone_spec]
+    OptimizingManager = CampaspeIntegratedModel.Agtor.EconManager("optimizing")
+    manage_zones = ((OptimizingManager, Tuple(collect(keys(zone_specs)))), )
+
+    basin = CampaspeIntegratedModel.Agtor.Basin(
+        name=basin_spec[:name],
+        zone_spec=zone_specs,
+        managers=manage_zones,
+        climate_data="data/climate/farm_climate.csv"
+    )
+    return basin
+end
