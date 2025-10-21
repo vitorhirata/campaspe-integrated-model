@@ -146,3 +146,42 @@ Useful for comparing seasonal dates across different years.
 function is_same_day(dt1::Date, dt2::Date)::Bool
     return Dates.month(dt1) == Dates.month(dt2) && Dates.day(dt1) == Dates.day(dt2)
 end
+
+"""
+    update_crop_dates!(basin::Agtor.Basin, start_date::Date)::Nothing
+
+Update plant and harvest dates for all crops in the basin to align with the model run period.
+
+For each crop, finds the next occurrence of its planting date (month-day) that occurs on or after
+the model start date, then updates plant_date, harvest_date, and growth stages accordingly.
+
+# Arguments
+- `basin::Agtor.Basin` : Basin containing zones with fields and crops
+- `start_date::Date` : Start date of the model simulation
+
+# Example
+```julia
+model_start = Date("2024-01-01")
+update_crop_dates!(campaspe_basin, model_start)
+```
+"""
+function update_crop_dates!(basin::Agtor.Basin, start_date::Date)::Nothing
+    for zone in basin.zones
+        for field in zone.fields
+            crop = field.crop
+
+            # Find the next occurrence of this month-day >= start_date
+            new_date = Date(Dates.year(start_date), Dates.month(crop.plant_date), Dates.day(crop.plant_date))
+            if new_date < start_date
+                new_date += Dates.Year(1)
+            end
+
+            # Update all crop dates
+            crop.plant_date = new_date
+            crop.harvest_date = crop.plant_date + crop.harvest_offset
+            CampaspeIntegratedModel.Agtor.update_stages!(crop, crop.plant_date)
+        end
+    end
+
+    return nothing
+end
