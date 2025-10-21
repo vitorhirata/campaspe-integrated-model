@@ -41,13 +41,21 @@ function run_model(scenario::DataFrameRow)::Tuple{Dict, Vector{Float64}}
     end_idx = findfirst(isequal(Date(scenario[:end_day])), farm_climate.Date)
     farm_climate = farm_climate[start_idx:end_idx, :]
 
+    # Setup surface water model
+    sw_climate = CampaspeIntegratedModel.Streamfall.Climate(scenario[:sw_climate_path], "_rain", "_evap")
+    sn = CampaspeIntegratedModel.Streamfall.load_network("Campaspe", scenario[:sw_network_path])
+
     # Setup policy model
-    dam_ext = DataFrame(CSV.File(scenario[:dam_extractions_path]))
+    if isempty(scenario[:dam_extractions_path])
+        dam_extraction = DataFrame("Date" => sw_climate.climate_data.Date, "406000_releases_[ML]" => 0.0)
+    else
+        dam_extraction = DataFrame(CSV.File(scenario[:dam_extractions_path]))
+    end
     model_step::Day = farm_climate.Date[2] - farm_climate.Date[1]
     model_run_range::StepRange{Date, Period} = farm_climate.Date[1]:model_step:farm_climate.Date[end]
 
     policy_state = CampaspeIntegratedModel.PolicyState(
-        scenario[:policy_path], model_run_range, scenario[:goulburn_alloc], dam_ext,
+        scenario[:policy_path], model_run_range, scenario[:goulburn_alloc], dam_extraction,
         scenario[:carryover_period], scenario[:max_carryover_perc], scenario[:restriction_type],
     )
 
@@ -60,19 +68,14 @@ function run_model(scenario::DataFrameRow)::Tuple{Dict, Vector{Float64}}
         name=basin_spec[:name], zone_spec=zone_specs, managers=manage_zones,
         climate_data=farm_climate_path
     )
-    # Create struct with dates that define model run
+    # Create struct with dates that define farm model run
     farm_step = scenario[:farm_step] # default is fortnight
     farm_dates = farm_climate.Date[1]:Dates.Day(farm_step):farm_climate.Date[end]
     farm_state = FarmState(farm_dates = farm_dates)
 
-    # Setup surface water model
-    sw_climate = CampaspeIntegratedModel.Streamfall.Climate(scenario[:sw_climate_path], "_rain", "_evap")
-    sn = CampaspeIntegratedModel.Streamfall.load_network("Campaspe", scenario[:sw_network_path])
-
     ## Additional parameters
     run_length = length(farm_climate.Date)
     rolling_avg_years = 3
-    dam_extraction = DataFrame("Date" => sw_climate.climate_data.Date, "406000_releases_[ML]" => 0.0)
     farm_sw_orders_orig = Dict{String, Float64}((zone_id => 0.0) for zone_id in policy_state.gw_state.zone_info.ZoneID)
     farm_sw_orders = copy(farm_sw_orders_orig)
     farm_gw_orders_ML = copy(farm_sw_orders_orig)

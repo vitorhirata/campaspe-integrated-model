@@ -31,7 +31,7 @@ function PolicyState(
     farm_zone_info, env_sys, other_sys, zone_shp = zonal_info(data_path)
 
     gw_state = GwState(zone_shp, carryover_period, max_carryover_perc, restriction_type, data_path)
-    sw_state = SwState(model_run_range, farm_zone_info, goulburn_alloc_scenario, dam_ext, env_sys, other_sys)
+    sw_state = SwState(model_run_range, farm_zone_info, goulburn_alloc_scenario, deepcopy(dam_ext), env_sys, other_sys)
 
     return PolicyState(sw_state=sw_state, gw_state=gw_state)
 end
