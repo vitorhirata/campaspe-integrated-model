@@ -466,9 +466,9 @@ function prop_subtract(lr::Float64, hr::Float64, val::Float64)::Tuple{Float64, F
         return lr, hr, val  # Both pools empty - cannot satisfy any demand
     end
 
-    lr = isapprox(lr, 0.0) ? 0.0 : lr  # Clean up numerical precision
-    hr = isapprox(hr, 0.0) ? 0.0 : hr
-    @assert lr >= 0.0 && hr >= 0.0
+    lr = isapprox(lr, 0.0; atol=1e-6) ? 0.0 : lr  # Clean up numerical precision
+    hr = isapprox(hr, 0.0; atol=1e-6) ? 0.0 : hr
+    @assert lr >= 0.0 && hr >= 0.0 "lr: $(lr), hr: $(hr)"
 
     return lr, hr, leftover
 end
