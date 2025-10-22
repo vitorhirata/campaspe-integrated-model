@@ -68,7 +68,8 @@ function run_model(scenario::DataFrameRow)::Tuple{Dict, Vector{Float64}}
         name=basin_spec[:name], zone_spec=zone_specs, managers=manage_zones,
         climate_data=farm_climate_path
     )
-    # Update crop planting and harvest dates to align with simulation period
+    # Update climate data and crop dates to align with simulation period
+    update_climate_data!(campaspe_basin, farm_climate.Date[1], farm_climate.Date[end])
     update_crop_dates!(campaspe_basin, farm_climate.Date[1])
     # Create struct with dates that define farm model run
     farm_step = scenario[:farm_step] # default is fortnight

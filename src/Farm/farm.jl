@@ -148,6 +148,32 @@ function is_same_day(dt1::Date, dt2::Date)::Bool
 end
 
 """
+    update_climate_data!(basin::Agtor.Basin, start_date::Date, end_date::Date)::Nothing
+
+Update climate data for the basin and all zones to match the simulation period.
+
+# Arguments
+- `basin::Agtor.Basin` : Basin with climate data to update
+- `start_date::Date` : Start date of the model simulation
+- `end_date::Date` : End date of the model simulation
+"""
+function update_climate_data!(basin::Agtor.Basin, start_date::Date, end_date::Date)::Nothing
+    # Filter climate data to the simulation period
+    mask = (start_date .<= basin.climate.time_steps .<= end_date)
+    filtered_data = basin.climate.data[mask, :]
+
+    # Reconstruct Climate with filtered data (this recalculates all derived stats)
+    basin.climate = CampaspeIntegratedModel.Agtor.Climate(filtered_data)
+
+    # Update each zone's climate to point to the new basin climate
+    for zone in basin.zones
+        zone.climate = basin.climate
+    end
+
+    return nothing
+end
+
+"""
     update_crop_dates!(basin::Agtor.Basin, start_date::Date)::Nothing
 
 Update plant and harvest dates for all crops in the basin to align with the model run period.
@@ -158,12 +184,6 @@ the model start date, then updates plant_date, harvest_date, and growth stages a
 # Arguments
 - `basin::Agtor.Basin` : Basin containing zones with fields and crops
 - `start_date::Date` : Start date of the model simulation
-
-# Example
-```julia
-model_start = Date("2024-01-01")
-update_crop_dates!(campaspe_basin, model_start)
-```
 """
 function update_crop_dates!(basin::Agtor.Basin, start_date::Date)::Nothing
     for zone in basin.zones
