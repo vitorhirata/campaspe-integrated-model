@@ -5,8 +5,6 @@ using Streamfall
 
 Update and run the surface water model for a single timestep.
 
-Only runs during irrigation season (May to February).
-
 # Arguments
 - `sn::Streamfall.StreamfallNetwork` : Surface water network
 - `climate::Streamfall.Climate` : Climate data (rainfall and evaporation)
@@ -22,9 +20,6 @@ function update_surface_water(
     sn::Streamfall.StreamfallNetwork, climate::Streamfall.Climate, ts::Int64, date::Date,
     extraction::DataFrame, exchange::Dict{String, Float64}
 )::Nothing
-    if !((Dates.month(date) >= 5) || (Dates.month(date) <= 2))
-        return nothing
-    end
     if ts == 1
         timesteps = CampaspeIntegratedModel.Streamfall.sim_length(climate)
         CampaspeIntegratedModel.Streamfall.prep_state!(sn, timesteps)
