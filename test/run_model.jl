@@ -31,10 +31,10 @@ using CSV
         @test length(dam_level_ts) > 0
 
         # Dam levels should be non-negative for days that were runned: one year + 19 days
-        @test all(dam_level_ts[1:(365+19)] .>= 0.0)
+        @test all(dam_level_ts[1:end] .>= 0.0)
 
         # Dam levels should have realistic values (between 0 and max capacity)
-        @test all(dam_level_ts[1:(365+19)] .<= 400_000.0)
+        @test all(dam_level_ts[1:end] .<= 400_000.0)
 
         # Test farm results structure
         @test farm_results isa Dict
