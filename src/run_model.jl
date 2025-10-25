@@ -126,6 +126,6 @@ function run_model(scenario::DataFrameRow)::Tuple{Dict, Vector{Float64}}
     end
 
     farm_results = CampaspeIntegratedModel.Agtor.collect_results(campaspe_basin)
-    dam_level_ts = sn["406000"][2].level
+    dam_level_ts = dam_level(sn)
     return farm_results, dam_level_ts
 end
