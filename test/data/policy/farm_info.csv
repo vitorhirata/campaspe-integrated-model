@@ -1,0 +1,13 @@
+FULLNAME,TRADING_ZO,SurfaceTra,WatSystem,wat_HR,wat_LR,wat_GW,TrigBore,ZoneID,goul_HR,goul_LR,NumBores
+Bamawm cropping regulated 1A trading,Bamawm Zone,Regulated 1A,Rochester Irrigation Area,23.6,0.0,25697.3,79324,8,120473.0,68627.9,25
+Barnadown dryland unregulated 140 trading,Barnadown Zone,Unregulated 140,,0.0,0.0,7995.0,62589,1,0.0,0.0,43
+Echuca regulated 1A trading,Echuca Zone,Regulated 1A,Rochester Irrigation Area,23.6,0.0,4919.5,79324,10,120473.0,68627.9,29
+Bamawm dairy regulated 1A trading,Bamawm Zone,Regulated 1A,Campaspe Irrigation Area,247.5,76.0,25697.3,79324,7,215.1,137.3,84
+Echuca unregulated 170 trading,Echuca Zone,Unregulated 170,,0.0,0.0,4919.5,79324,12,0.0,0.0,8
+Bamawm cropping regulated 4C trading,Bamawm Zone,Regulated 4C,Campaspe River (WWC to Murray),931.5,0.0,25697.3,79324,9,0.0,0.0,6
+Barnadown regulated 4A trading,Barnadown Zone,Regulated 4A,Campaspe River (Eppalock to Weir),5187.1,5509.9,7995.0,62589,2,0.0,0.0,6
+Echuca regulated 4C trading,Echuca Zone,Regulated 4C,Campaspe River (WWC to Murray),931.5,0.0,4919.5,79324,11,0.0,0.0,6
+Elmore-Rochester regulated 4A trading,Elmore-Rochester Zone,Regulated 4A,Campaspe River (Eppalock to Weir),5187.1,5509.9,17248.6,79324,4,0.0,0.0,5
+Elmore-Rochester CID unregulated 140 trading,Elmore-Rochester Zone,Unregulated 140,,0.0,0.0,17248.6,79324,5,0.0,0.0,43
+Elmore-Rochester unregulated 170/140 trading,Elmore-Rochester Zone,Unregulated 170,,0.0,0.0,17248.6,79324,3,0.0,0.0,19
+Elmore-Rochester CID regulated 4A trading,Elmore-Rochester Zone,Regulated 4A,Campaspe River (Weir to WWC),353.1,733.2,17248.6,79324,6,0.0,0.0,4

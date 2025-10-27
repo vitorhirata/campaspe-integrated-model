@@ -4,7 +4,6 @@ using CSV
 using YAML
 using Dates
 using DataFrames
-using GeoDataFrames
 using Parameters
 using StatsBase
 
