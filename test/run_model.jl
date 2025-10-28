@@ -7,7 +7,7 @@ using CSV
     @testset "run_model executes without errors and returns valid results" begin
         scenario = DataFrame(Dict(
             :farm_climate_path => "data/climate/farm_climate.csv",
-            :farm_path => "data/farm",
+            :farm_path => "data/farm/basin",
             :start_day => "1981-01-10",
             :end_day => "1982-01-20",
             :farm_step => 14,

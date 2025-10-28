@@ -11,6 +11,7 @@ include("Policy/policy.jl")
 include("Farm/farm.jl")
 include("SurfaceWater/surface_water.jl")
 include("Groundwater/groundwater.jl")
+include("PathwayDiversity/pathway_diversity.jl")
 include("run_model.jl")
 
 end

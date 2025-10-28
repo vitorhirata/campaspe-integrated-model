@@ -206,6 +206,50 @@ function compute_entitlements(zone_info::Dict{String, Any}, env_systems::DataFra
 end
 
 """
+    recalculate_entitlements!(sw_state::SwState)::Nothing
+
+Recalculate all entitlement totals in sw_state based on current zone_info values.
+Updates hr_entitlement, lr_entitlement, farm_hr_entitlement, farm_lr_entitlement,
+other_hr_entitlements, and other_lr_entitlements.
+
+# Arguments
+- `sw_state::SwState` : Surface water state containing zone information
+"""
+function recalculate_entitlements!(sw_state::SwState)::Nothing
+    hr_ent = lr_ent = farm_hr = farm_lr = other_hr = other_lr = env_hr = env_lr = 0.0
+
+    for value in values(sw_state.zone_info)
+        if value["zone_type"] == "farm"
+            hr_ent += value["entitlement"]["camp_HR"]
+            lr_ent += value["entitlement"]["camp_LR"]
+            farm_hr += value["entitlement"]["farm_HR"]
+            farm_lr += value["entitlement"]["farm_LR"]
+        elseif value["zone_type"] == "environmental"
+            env_hr += value["entitlement"]["HR"]
+            env_lr += value["entitlement"]["LR"]
+            hr_ent += value["entitlement"]["HR"]
+            lr_ent += value["entitlement"]["LR"]
+        elseif value["zone_type"] == "other"
+            other_hr += value["entitlement"]["HR"]
+            other_lr += value["entitlement"]["LR"]
+            hr_ent += value["entitlement"]["HR"]
+            lr_ent += value["entitlement"]["LR"]
+        end
+    end
+
+    sw_state.hr_entitlement = hr_ent
+    sw_state.lr_entitlement = lr_ent
+    sw_state.farm_hr_entitlement = farm_hr
+    sw_state.farm_lr_entitlement = farm_lr
+    sw_state.other_hr_entitlements = other_hr
+    sw_state.other_lr_entitlements = other_lr
+    sw_state.env_state.hr_entitlement = env_hr - sw_state.env_state.fixed_annual_losses
+    sw_state.env_state.lr_entitlement = env_lr
+
+    return nothing
+end
+
+"""
     allocation_template()::Dict{String, Dict{String, Float64}}
 
 Create allocation template dictionary structure for tracking water allocations
