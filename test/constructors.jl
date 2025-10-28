@@ -73,8 +73,32 @@ function create_sw_state()
     return sw_state
 end
 
+function create_policy_state()
+    data_path = "data/policy/"
+    model_run_range::StepRange{Date, Period} = Date("1970-07-01"):Day(1):Date("1971-06-30")
+    goulburn_alloc_scenario = "high"
+    dam_ext = DataFrame(
+        Time = [Date("1970-07-01")],
+        Extraction = [10.0]
+    )
+    carryover_period = 1
+    max_carryover_perc = 0.95
+    restriction_type = "default"
+
+    # Create PolicyState
+    policy_state = CampaspeIntegratedModel.PolicyState(
+        data_path,
+        model_run_range,
+        goulburn_alloc_scenario,
+        dam_ext,
+        carryover_period,
+        max_carryover_perc,
+        restriction_type,
+    )
+end
+
 function create_agtor_basin()
-    basin_spec = CampaspeIntegratedModel.Agtor.load_spec("data/farm/TestBasin.yml")[:Campaspe]
+    basin_spec = CampaspeIntegratedModel.Agtor.load_spec("data/farm/basin")[:Campaspe]
     zone_specs = basin_spec[:zone_spec]
     OptimizingManager = CampaspeIntegratedModel.Agtor.EconManager("optimizing")
     manage_zones = ((OptimizingManager, Tuple(collect(keys(zone_specs)))), )

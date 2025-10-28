@@ -4,6 +4,8 @@ using Agtor
     plant_season_start::Date = Date(1900, 5, 25) # Year is ignored
     plant_season_end::Date = Date(1900, 1, 20) # Year is ignored
     is_plant_season::Bool = false
+    irrigation_subsidy::Float64 = 1.0 # multiplier of irrigation capital_cost if improving irrigation efficiency
+    solar_panel_subsidy::Float64 = 1.0 # multiplier of pump capital_cost if adopting solar powered pumps
     farm_dates::StepRange{Date, Day}
 end
 

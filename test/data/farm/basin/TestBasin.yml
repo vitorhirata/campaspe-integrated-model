@@ -2,4 +2,4 @@ name: Campaspe
 component: Basin
 
 # Paths to zone specs
-zone_spec: ["data/farm/zones/TestZone.yml"]
+zone_spec: ["data/farm/basin/TestZone.yml"]

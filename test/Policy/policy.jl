@@ -1,27 +1,7 @@
 @testset "#update_policy integration test" begin
     @testset "update_policy returns valid allocations" begin
         # Setup test parameters
-        data_path = "data/policy/"
-        model_run_range::StepRange{Date, Period} = Date("1970-07-01"):Day(1):Date("1971-06-30")
-        goulburn_alloc_scenario = "high"
-        dam_ext = DataFrame(
-            Time = [Date("1970-07-01")],
-            Extraction = [10.0]
-        )
-        carryover_period = 1
-        max_carryover_perc = 0.95
-        restriction_type = "default"
-
-        # Create PolicyState
-        policy_state = CampaspeIntegratedModel.PolicyState(
-            data_path,
-            model_run_range,
-            goulburn_alloc_scenario,
-            dam_ext,
-            carryover_period,
-            max_carryover_perc,
-            restriction_type,
-        )
+        policy_state = create_policy_state()
 
         # Setup update_policy parameters
         ts = 1

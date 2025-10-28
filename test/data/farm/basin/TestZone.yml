@@ -35,13 +35,13 @@ fields:
     component: CropField
 
     total_area_ha: 100.0
-    irrigation_spec: "data/farm/irrigations/dryland.yml"
+    irrigation_spec: "data/farm/irrigations/gravity.yml"
 
     # Initial crop is the first one in this list
-    crop_rotation_spec: ["data/farm/crops/irrigated_wheat.yml"]
+    crop_rotation_spec: ["data/farm/crops/irrigated_wheat.yml", "data/farm/crops/irrigated_canola.yml"]
 
     # average soil total available water (mm)
-    soil_TAW: 100.0
+    soil_TAW: ["RealParameter", 100.0, 90.0, 120.0]
 
     # Initial Soil Water Deficit
     soil_SWD: 20.0

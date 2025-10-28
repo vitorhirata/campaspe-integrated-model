@@ -1,0 +1,16 @@
+name: solar_groundwater
+component: Pump
+# groundwater pump representing an average mix of diesel and solar powered
+
+# costs taken from:
+# https://www.eec.org.au/uploads/Sector%20Development/NSW%20Farmers%20-%20Solar-powered%20pumping%20in%20agriculture.pdf
+# https://doi.org/10.1016/j.jclepro.2019.03.071
+
+capital_cost: ["RealParameter", 150000.0, 150000.0, 300000.0]  # assumed total implementation cost
+minor_maintenance_schedule: ["RealParameter", 5, 5, 5]
+major_maintenance_schedule: ["RealParameter", 15, 15, 15]
+minor_maintenance_rate: ["RealParameter", 0.05, 0.05, 0.05]
+major_maintenance_rate: ["RealParameter", 0.30, 0.30, 0.30]
+pump_efficiency: 0.7
+cost_per_kW: ["RealParameter", 0.05, 0.05, 0.05]
+derating: 0.75
