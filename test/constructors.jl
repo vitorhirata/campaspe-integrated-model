@@ -25,7 +25,7 @@ function create_sw_state()
     )
     env_systems = DataFrame(
         "Water System" => ["Campaspe River Environment"],
-        "HR_Entitlement" => [1000.0],
+        "HR_Entitlement" => [5000.0],
         "LR_Entitlement" => [50.0]
     )
     other_systems = DataFrame(
