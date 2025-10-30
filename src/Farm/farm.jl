@@ -208,3 +208,27 @@ function update_crop_dates!(basin::Agtor.Basin, start_date::Date)::Nothing
 
     return nothing
 end
+
+"""
+    parse_farm_results(farm_results::Dict{Any, Any})::DataFrame
+
+Parse farm model results dictionary and concatenate zone results into a single DataFrame.
+
+# Arguments
+- `farm_results::Dict{Any, Any}` : Dictionary with farm results, zone names as keys and NamedTuples as values
+
+# Returns
+- `DataFrame` : Combined results from all zones
+"""
+function parse_farm_results(farm_results::Dict{Any, Any})::DataFrame
+    combined_df = DataFrame[]
+    for (zone_name, results_tuple) in farm_results
+        zone_df = results_tuple.zone_results
+        zone_df[!, :zone_id] .= split(zone_name, "_")[end]
+        push!(combined_df, zone_df)
+    end
+    combined_df = vcat(combined_df..., cols=:union)
+    select!(combined_df, :zone_id, :) # Move zone_id to be the first column
+
+    return combined_df
+end
