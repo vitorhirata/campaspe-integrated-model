@@ -31,11 +31,11 @@ resolution. Each internal models is responsible to check if it should be runned.
 
 # Returns
 - `Tuple{Dict, Vector{Float64}}` :
-  - First element: Dictionary of farm model results for each zone`
+  - First element: DataFrame of farm model results for each zone`
   - Second element: Vector of dam water levels over the simulation period (mAHD - meter above sea level)
   - Third element: Vector of recreational index over the simulation period
 """
-function run_model(scenario::DataFrameRow)::Tuple{Dict,Vector{Float64},Vector{Float64}}
+function run_model(scenario::DataFrameRow)::Tuple{DataFrame,Vector{Float64},Vector{Float64}}
     # Load climate data farm
     farm_climate_path = scenario[:farm_climate_path]
     farm_climate = DataFrame(CSV.File(farm_climate_path))
@@ -145,8 +145,9 @@ function run_model(scenario::DataFrameRow)::Tuple{Dict,Vector{Float64},Vector{Fl
         farm_sw_orders, farm_gw_orders_ML = update_farm(campaspe_basin, avg_gw_depth, farm_allocs, dt, ts, farm_state)
     end
 
-    farm_results = Agtor.collect_results(campaspe_basin)
+    farm_results = parse_farm_results(Agtor.collect_results(campaspe_basin))
     dam_level_ts = dam_level(sn)
+
     @info "Finished run"
     return farm_results, dam_level_ts, recreational_index(dam_level_ts)
 end
