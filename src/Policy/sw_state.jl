@@ -37,6 +37,7 @@
     ts_reserves::Dict{String, Vector{Float64}} # Time series reserves by week (HR, LR, operational)
     reserves::Dict{String, Vector{Float64}} # Time series reserves by year (HR, LR, operational)
     water_losses::Dict{String, Vector{Float64}} # Water losses from lake and operations time series by week
+    env_orders::Vector{Float64} # Environmental water orders by week
 
     # Goulburn catchment
     goulburn_alloc_scenario::String # Allocation scenario for Goulburn catchment
@@ -72,6 +73,7 @@ function SwState(
     total_n_weeks = round(Int, (length(model_run_range) / 7) + 1) + 7
     total_n_years = round(Int, (length(model_run_range) / 356) + 1)
     gmw_vol = zeros(total_n_weeks)
+    env_orders = zeros(total_n_weeks)
     carryover_state = zeros(total_n_years)
     yearly_carryover = zeros(total_n_years)
     proj_inflow = zeros(total_n_weeks)
@@ -106,7 +108,7 @@ function SwState(
         water_losses=water_losses, hr_entitlement=hr_entitlement, lr_entitlement=lr_entitlement,
         farm_hr_entitlement=farm_hr_entitlement, farm_lr_entitlement=farm_lr_entitlement,
         other_hr_entitlements=other_hr_entitlements, other_lr_entitlements=other_lr_entitlements,
-        env_state=env_state
+        env_state=env_state, env_orders=env_orders
     )
 end
 

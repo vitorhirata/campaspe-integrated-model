@@ -25,7 +25,7 @@ using CSV
         ))[1,:]
 
         # Run model and capture results
-        farm_results, dam_level_ts, recreation_index = CampaspeIntegratedModel.run_model(scenario)
+        farm_results, dam_level_ts, recreation_index, env_orders = CampaspeIntegratedModel.run_model(scenario)
 
         col_names = ["zone_id", "Date", "income_sum", "irrigated_volume_sum", "irrigated_yield_sum", "dryland_yield_sum",
             "growing_season_rainfall_sum", "irrigated_area_sum", "dryland_area_sum", "Dollar per ML",
@@ -42,5 +42,8 @@ using CSV
         @test length(recreation_index) > 0
         @test all(recreation_index[1:end] .>= 0.0)
         @test all(recreation_index[1:end] .<= 1.0)
+
+        @test length(env_orders) > 0
+        @test all(env_orders[1:end] .>= 0.0)
     end
 end
