@@ -42,6 +42,7 @@ function update_farm(
     if is_same_day(dt, farm_state.plant_season_start)
         reset_allocations!(basin)
         farm_state.is_plant_season = true
+        farm_state.plant_season_end = basin.zones[1].fields[1].harvest_date # Update season_end
     end
     if !farm_state.is_plant_season
         return sw_orders, gw_orders
