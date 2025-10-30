@@ -24,27 +24,20 @@ using CSV
         ))[1,:]
 
         # Run model and capture results
-        farm_results, dam_level_ts = CampaspeIntegratedModel.run_model(scenario)
+        farm_results, dam_level_ts, recreation_index = CampaspeIntegratedModel.run_model(scenario)
 
-        # Test dam level time series
-        @test !isempty(dam_level_ts)
-        @test length(dam_level_ts) > 0
-
-        # Dam levels should be non-negative for days that were runned: one year + 19 days
-        @test all(dam_level_ts[1:end] .>= 0.0)
-
-        # Dam levels should have realistic values (between 0 and max capacity)
-        @test all(dam_level_ts[1:end] .<= 400_000.0)
-
-        # Test farm results structure
         @test farm_results isa Dict
-
-        # Should contain zone results (check if keys exist)
         @test !isempty(farm_results)
-
-        # Each zone should have results
         for (zone_name, zone_data) in farm_results
             @test !isempty(zone_data)
         end
+
+        @test length(dam_level_ts) > 0
+        @test all(dam_level_ts[1:end] .>= 0.0)
+        @test all(dam_level_ts[1:end] .<= 204.0)
+
+        @test length(recreation_index) > 0
+        @test all(recreation_index[1:end] .>= 0.0)
+        @test all(recreation_index[1:end] .<= 1.0)
     end
 end
