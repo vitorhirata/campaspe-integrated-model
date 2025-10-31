@@ -46,7 +46,7 @@ function run_model(scenario::DataFrameRow)::Tuple{Dict,Vector{Float64}}
 
     start_idx = findfirst(isequal(Date(scenario[:start_day])), sw_climate.Date)
     end_idx = findfirst(isequal(Date(scenario[:end_day])), sw_climate.Date)
-    sw_climate = [start_idx:end_idx, :]
+    sw_climate = sw_climate[start_idx:end_idx, :]
 
     sw_climate = CampaspeIntegratedModel.Streamfall.Climate(sw_climate, "_rain", "_evap")
     sn = CampaspeIntegratedModel.Streamfall.load_network("Campaspe", scenario[:sw_network_path])
@@ -96,7 +96,7 @@ function run_model(scenario::DataFrameRow)::Tuple{Dict,Vector{Float64}}
 
     # Setup logging
 
-    println("Starting model run.")
+    @info "Starting model run"
     for (ts, dt) in enumerate(model_run_range)
         next_day = ts + 1
 
@@ -132,5 +132,7 @@ function run_model(scenario::DataFrameRow)::Tuple{Dict,Vector{Float64}}
 
     farm_results = CampaspeIntegratedModel.Agtor.collect_results(campaspe_basin)
     dam_level_ts = dam_level(sn)
+
+    @info "Finished run"
     return farm_results, dam_level_ts
 end
