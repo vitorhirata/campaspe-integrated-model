@@ -107,18 +107,27 @@ function run_model(scenario::DataFrameRow)::Tuple{Dict, Vector{Float64}}
 
         # Run policy model
         dam_rolling_level = get_rolling_dam_level(dt, rolling_avg_years, dam_level(sn), sw_climate.climate_data.Date)
-        dam_release, farm_allocs = update_policy(
+        water_release, farm_allocs = update_policy(
             policy_state, ts, dt,
             farm_sw_orders, farm_gw_orders_ML,
             dam_volume(sn, ts), dam_rolling_level, rochester_flow(sn), proj_inflow(sn, ts), trigger_head, farm_step
         )
 
-        # Set dam release for all days in next fortnight and reset orders
-        if isa(dam_release, Bool) ? dam_release : ((dam_release > 0) && !isapprox(dam_release, 0.0; atol=1e-6))
-            end_date = (ts+farm_step <= nrow(dam_extraction)) ? ts+farm_step : size(dam_extraction)[1]
-            dam_extraction[(ts+1):(end_date), "406000_releases_[ML]"] .+= dam_release
-            farm_sw_orders = copy(farm_sw_orders_orig) # reset farm sw orders
+        if !isa(water_release, Bool)
+            # Python-based implementation:
+            # update_policy() returns false if the component did not run.
+            # If it is a boolean, then no water was released, so this if-block can be
+            # skipped.
+            was_released = (water_release > 0.0)
+            not_zero_release = !isapprox(water_release, 0.0; atol=1e-6)
+            if was_released && not_zero_release
+                end_date = (ts + farm_step <= nrow(dam_extraction)) ? ts + farm_step : size(dam_extraction)[1]
+                dam_extraction[(ts+1):(end_date), "406000_releases_[ML]"] .+= water_release
+                farm_sw_orders = copy(farm_sw_orders_orig) # reset farm sw orders
+            end
         end
+
+        # Set dam release for all days in next fortnight and reset orders
         farm_gw_orders_ML = copy(farm_sw_orders_orig) # reset farm gw orders
 
         # Run farm model every fortnight
