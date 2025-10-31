@@ -121,6 +121,7 @@ function run_model(scenario::DataFrameRow)::Tuple{Dict,Vector{Float64}}
             dam_volume(sn, ts), dam_rolling_level, rochester_flow(sn), proj_inflow(sn, ts), trigger_head, farm_step
         )
 
+        # Set dam release for all days in next fortnight and reset orders
         if !isa(water_release, Bool)
             # Python-based implementation:
             # update_policy() returns false if the component did not run.
@@ -135,7 +136,6 @@ function run_model(scenario::DataFrameRow)::Tuple{Dict,Vector{Float64}}
             end
         end
 
-        # Set dam release for all days in next fortnight and reset orders
         farm_gw_orders_ML = copy(farm_sw_orders_orig) # reset farm gw orders
 
         # Run farm model every fortnight
