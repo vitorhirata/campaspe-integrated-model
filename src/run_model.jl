@@ -1,6 +1,59 @@
 import CampaspeIntegratedModel: Agtor, Streamfall
 
 """
+    run_scenarios(scenarios::DataFrame)::Vector{NamedTuple}
+
+Run the integrated model for multiple scenarios and collect results.
+
+# Arguments
+- `scenarios::DataFrame` : DataFrame where each row represents a scenario configuration
+
+# Returns
+- `Vector{NamedTuple}` : Vector of results, one per scenario, where each element contains:
+  - `:scenario_id` : Row index of the scenario (Int)
+  - `:farm_option` : Farm adaptation option applied (String)
+  - `:policy_option` : Policy adaptation option applied (String)
+  - `:farm_results` : DataFrame with farm model results by zone and year
+  - `:dam_level` : Vector of dam water levels (mAHD) by day
+  - `:recreational_index` : Vector of recreational index by day
+  - `:env_orders` : Vector of environmental orders by week
+"""
+function run_scenarios(scenarios::DataFrame, save::Bool = true)::Vector{NamedTuple}
+    if save
+        result_dir = save_inputs(scenarios)
+    end
+
+    n_scenarios = nrow(scenarios)
+    results = Vector{NamedTuple}(undef, n_scenarios)
+
+    @info "Running $(n_scenarios) scenarios"
+    for i in 1:n_scenarios
+        scenario = scenarios[i, :]
+        farm_opt = get(scenario, :farm_option, "default")
+        policy_opt = get(scenario, :policy_option, "default")
+
+        @info "Running scenario $(i)/$(n_scenarios): farm_option='$(farm_opt)', policy_option='$(policy_opt)'"
+        farm_results, dam_level, rec_index, env_orders = run_model(scenario)
+
+        results[i] = (
+            scenario_id = i,
+            farm_option = farm_opt,
+            policy_option = policy_opt,
+            farm_results = farm_results,
+            dam_level = dam_level,
+            recreational_index = rec_index,
+            env_orders = env_orders
+        )
+    end
+
+    @info "Completed all $(n_scenarios) scenarios"
+    if save
+        save_outputs(results, result_dir, Date(scenarios[1, :start_day]))
+    end
+    return results
+end
+
+"""
     run_model(scenario::DataFrameRow)::Tuple{Dict, Vector{Float64}}
 
 Run the Campaspe integrated water resource model.
