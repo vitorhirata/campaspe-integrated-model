@@ -58,6 +58,7 @@ scenario_future = Dict(
      :farm_climate_path => "data/climate/best_case_rcp45_2016-2045/farm_climate.csv",
      :farm_path => "data/farm/basin",
      :farm_step => 14,
+     :farm_option => "",
      # Policy parameters
      :policy_path => "data/policy",
      :goulburn_alloc => "high",
@@ -65,6 +66,7 @@ scenario_future = Dict(
      :max_carryover_perc => 0.25,
      :carryover_period => 1,
      :dam_extractions_path => "",
+     :policy_option => "",
      # Surface water parameters
      :sw_climate_path => "data/climate/best_case_rcp45_2016-2045/sw_climate.csv",
      :sw_network_path => "data/surface_water/campaspe_network.yml",

@@ -101,7 +101,13 @@ function run_model(scenario::DataFrameRow)::Tuple{DataFrame,Vector{Float64},Vect
     trigger_head = Dict{String,Float64}()
     avg_gw_depth = Dict{String,Float64}()
 
-    # Setup logging
+    # Apply farm and policy adaptation options if specified
+    if !isempty(get(scenario, :farm_option, ""))
+        implement_farm_option!(scenario[:farm_option], campaspe_basin, scenario[:farm_path], farm_state, policy_state)
+    end
+    if !isempty(get(scenario, :policy_option, ""))
+        implement_policy_option!(scenario[:policy_option], policy_state, farm_state, sn, campaspe_basin)
+    end
 
     @info "Starting model run"
     for (ts, dt) in enumerate(model_run_range)
