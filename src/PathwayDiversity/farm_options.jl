@@ -1,4 +1,40 @@
 """
+    implement_farm_option!(farm_option::String, basin::Agtor.Basin, farm_path::String, farm_state::FarmState, policy_state::PolicyState)::Nothing
+
+Apply a farm adaptation option to all zones in the basin.
+
+# Arguments
+- `farm_option::String` : Name of the farm option to implement
+- `basin::Agtor.Basin` : Farm basin containing zones
+- `farm_path::String` : Path to farm data directory
+- `farm_state::FarmState` : Farm state containing subsidy information
+- `policy_state::PolicyState` : Policy state for entitlement updates
+"""
+function implement_farm_option!(
+    farm_option::String, basin::Agtor.Basin, farm_path::String, farm_state::FarmState, policy_state::PolicyState
+)::Nothing
+    if farm_option == "improve_irrigation_efficiency"
+        map(zone -> improve_irrigation_efficiency!(zone, farm_path, farm_state), basin.zones)
+    elseif farm_option == "implement_solar_panels"
+        map(zone -> implement_solar_panels!(zone, farm_path, farm_state), basin.zones)
+    elseif farm_option == "adopt_drought_resistant_crops"
+        map(zone -> adopt_drought_resistant_crops!(zone, farm_path), basin.zones)
+    elseif farm_option == "improve_soil_TAW"
+        map(improve_soil_TAW!, basin.zones)
+    elseif farm_option == "increase_farm_entitlements"
+        map(zone -> change_farm_entitlements!(zone, policy_state, 0.15), basin.zones)
+    elseif farm_option == "decrease_farm_entitlements"
+        map(zone -> change_farm_entitlements!(zone, policy_state, -0.15), basin.zones)
+    elseif farm_option == "default"
+        return nothing
+    else
+        @warn "Farm option $(farm_option) not implemented, no changes applied."
+    end
+
+    return nothing
+end
+
+"""
     improve_irrigation_efficiency!(zone::Agtor.FarmZone, farm_path::String, farm_state::FarmState)::Nothing
 
 Update irrigation parameters for all fields in a zone from a new irrigation specification file.

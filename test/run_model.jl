@@ -12,6 +12,7 @@ using CSV
             :farm_climate_path => "data/climate/farm_climate.csv",
             :farm_path => "data/farm/basin",
             :farm_step => 14,
+            :farm_option => "",
             # Policy parameters
             :policy_path => "data/policy",
             :goulburn_alloc => "high",
@@ -19,6 +20,7 @@ using CSV
             :max_carryover_perc => 0.25,
             :carryover_period => 1,
             :dam_extractions_path => "",
+            :policy_option => "",
             # Surface water parameters
             :sw_climate_path => "data/climate/sw_climate.csv",
             :sw_network_path => "data/surface_water/two_node_network.yml",

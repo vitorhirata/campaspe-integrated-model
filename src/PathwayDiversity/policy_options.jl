@@ -1,4 +1,45 @@
 """
+    implement_policy_option!(policy_option::String, policy_state::PolicyState, farm_state::FarmState, sn::Streamfall.StreamfallNetwork, basin::Agtor.Basin)::Nothing
+
+Apply a policy adaptation option to the model state.
+
+# Arguments
+- `policy_option::String` : Name of the policy option to implement
+- `policy_state::PolicyState` : Policy state containing allocation information
+- `farm_state::FarmState` : Farm state containing subsidy information
+- `sn::Streamfall.StreamfallNetwork` : Surface water network
+- `basin::Agtor.Basin` : Farm basin containing zones
+"""
+function implement_policy_option!(
+    policy_option::String, policy_state::PolicyState, farm_state::FarmState,
+    sn::Streamfall.StreamfallNetwork, basin::Agtor.Basin
+)::Nothing
+    if policy_option == "implement_coupled_allocations"
+        implement_coupled_allocations!(policy_state)
+    elseif policy_option == "increase_environmental_water"
+        change_environmental_water!(policy_state.sw_state, 0.15)
+    elseif policy_option == "decrease_environmental_water"
+        change_environmental_water!(policy_state.sw_state, -0.15)
+    elseif policy_option == "increase_water_price"
+        map(zone -> change_water_price!(zone, 0.15), basin.zones)
+    elseif policy_option == "decrease_water_price"
+        map(zone -> change_water_price!(zone, -0.15), basin.zones)
+    elseif policy_option == "raise_dam_level"
+        raise_dam_level!(sn)
+    elseif policy_option == "subsidise_irrigation_efficiency"
+        subsidise_irrigation_efficiency!(farm_state)
+    elseif policy_option == "subsidise_solar_pump"
+        subsidise_solar_pump!(farm_state)
+    elseif policy_option == "default"
+        return nothing
+    else
+        @warn "Policy option $(policy_option) not implemented, no changes applied."
+    end
+
+    return nothing
+end
+
+"""
     implement_coupled_allocations!(policy_state::PolicyState)::Nothing
 
 Change groundwater allocations to be coupled with surface water allocation.
