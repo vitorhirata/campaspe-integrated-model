@@ -7,6 +7,7 @@ using DataFrames
 using Parameters
 using StatsBase
 
+include("sample.jl")
 include("io.jl")
 include("Policy/policy.jl")
 include("Farm/farm.jl")
