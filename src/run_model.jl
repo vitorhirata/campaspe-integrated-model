@@ -32,7 +32,7 @@ resolution. Each internal models is responsible to check if it should be runned.
   - First element: Dictionary of farm model results for each zone`
   - Second element: Vector of dam water levels over the simulation period (ML)
 """
-function run_model(scenario::DataFrameRow)::Tuple{Dict, Vector{Float64}}
+function run_model(scenario::DataFrameRow)::Tuple{Dict,Vector{Float64}}
     # Load climate data farm
     farm_climate_path = scenario[:farm_climate_path]
     farm_climate = DataFrame(CSV.File(farm_climate_path))
