@@ -1,3 +1,5 @@
+import CampaspeIntegratedModel: Agtor, Streamfall
+
 """
     run_model(scenario::DataFrameRow)::Tuple{Dict, Vector{Float64}}
 
@@ -61,11 +63,12 @@ function run_model(scenario::DataFrameRow)::Tuple{Dict, Vector{Float64}}
     )
 
     # Setup farm model
-    basin_spec = CampaspeIntegratedModel.Agtor.load_spec(scenario[:farm_path])[:Campaspe]
+    farm_spec = Agtor.load_spec(scenario[:farm_path])
+    basin_spec = farm_spec[:Campaspe]
     zone_specs = basin_spec[:zone_spec]
-    OptimizingManager = CampaspeIntegratedModel.Agtor.EconManager("optimizing")
-    manage_zones = ((OptimizingManager, Tuple(collect(keys(zone_specs)))), )
-    campaspe_basin = CampaspeIntegratedModel.Agtor.Basin(
+    OptimizingManager = Agtor.EconManager("optimizing")
+    manage_zones = ((OptimizingManager, Tuple(collect(keys(zone_specs)))),)
+    campaspe_basin = Agtor.Basin(
         name=basin_spec[:name], zone_spec=zone_specs, managers=manage_zones,
         climate_data=farm_climate_path
     )
@@ -75,19 +78,19 @@ function run_model(scenario::DataFrameRow)::Tuple{Dict, Vector{Float64}}
     # Create struct with dates that define farm model run
     farm_step = scenario[:farm_step] # default is fortnight
     farm_dates = farm_climate.Date[1]:Dates.Day(farm_step):farm_climate.Date[end]
-    farm_state = FarmState(farm_dates = farm_dates)
+    farm_state = FarmState(farm_dates=farm_dates)
 
     ## Additional parameters
     run_length = length(farm_climate.Date)
     rolling_avg_years = 3
-    farm_sw_orders_orig = Dict{String, Float64}((zone_id => 0.0) for zone_id in policy_state.gw_state.zone_info.ZoneID)
+    farm_sw_orders_orig = Dict{String,Float64}((zone_id => 0.0) for zone_id in policy_state.gw_state.zone_info.ZoneID)
     farm_sw_orders = copy(farm_sw_orders_orig)
     farm_gw_orders_ML = copy(farm_sw_orders_orig)
 
     # Initialize groundwater model outputs (used when ts == run_length and groundwater model doesn't run)
-    exchange = Dict{String, Float64}()
-    trigger_head = Dict{String, Float64}()
-    avg_gw_depth = Dict{String, Float64}()
+    exchange = Dict{String,Float64}()
+    trigger_head = Dict{String,Float64}()
+    avg_gw_depth = Dict{String,Float64}()
 
     # Setup logging
 
@@ -134,7 +137,7 @@ function run_model(scenario::DataFrameRow)::Tuple{Dict, Vector{Float64}}
         farm_sw_orders, farm_gw_orders_ML = update_farm(campaspe_basin, avg_gw_depth, farm_allocs, dt, ts, farm_state)
     end
 
-    farm_results = CampaspeIntegratedModel.Agtor.collect_results(campaspe_basin)
+    farm_results = Agtor.collect_results(campaspe_basin)
     dam_level_ts = dam_level(sn)
     return farm_results, dam_level_ts
 end
