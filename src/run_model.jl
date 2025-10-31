@@ -42,7 +42,12 @@ function run_model(scenario::DataFrameRow)::Tuple{Dict,Vector{Float64}}
     farm_climate = farm_climate[start_idx:end_idx, :]
 
     # Setup surface water model
-    sw_climate = CSV.read(scenario[:sw_climate_path], DataFrame; comment="#")[start_idx:end_idx, :]
+    sw_climate = CSV.read(scenario[:sw_climate_path], DataFrame; comment="#")
+
+    start_idx = findfirst(isequal(Date(scenario[:start_day])), sw_climate.Date)
+    end_idx = findfirst(isequal(Date(scenario[:end_day])), sw_climate.Date)
+    sw_climate = [start_idx:end_idx, :]
+
     sw_climate = CampaspeIntegratedModel.Streamfall.Climate(sw_climate, "_rain", "_evap")
     sn = CampaspeIntegratedModel.Streamfall.load_network("Campaspe", scenario[:sw_network_path])
 
