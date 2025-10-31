@@ -21,7 +21,7 @@ PolicyState constructor.
 """
 function PolicyState(
     data_path::String,
-    model_run_range::StepRange{Date, Period},
+    model_run_range::Union{StepRange{Date, Period}, Vector{Date}},
     goulburn_alloc_scenario::String,
     dam_ext::DataFrame,
     carryover_period::Int64,

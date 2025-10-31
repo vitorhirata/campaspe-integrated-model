@@ -52,8 +52,10 @@ function run_model(scenario::DataFrameRow)::Tuple{Dict, Vector{Float64}}
     else
         dam_extraction = DataFrame(CSV.File(scenario[:dam_extractions_path]))
     end
-    model_step::Day = farm_climate.Date[2] - farm_climate.Date[1]
-    model_run_range::StepRange{Date, Period} = farm_climate.Date[1]:model_step:farm_climate.Date[end]
+
+    # Assume daily data for now
+    # model_step::Day = farm_climate.Date[2] - farm_climate.Date[1]
+    model_run_range::Vector{Dates.Date} = farm_climate.Date
 
     policy_state = CampaspeIntegratedModel.PolicyState(
         scenario[:policy_path], model_run_range, scenario[:goulburn_alloc], dam_extraction,

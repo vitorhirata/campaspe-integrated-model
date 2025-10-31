@@ -7,7 +7,7 @@
     ts::Int64 = 1 # Day timestep counter
     current_year::Int64 = 1 # Year timestep counter
     next_run::Union{Date, Nothing} = nothing # Next scheduled run date
-    model_run_range::StepRange{Date, Period} # Date range for model execution
+    model_run_range::Union{StepRange{Date, Period},Vector{Date}} # Date range for model execution
 
     # Dam and GMW parameters
     gmw_share::Float64 = 0.82 # Water under control of GM-Water
@@ -65,7 +65,7 @@ SwState constructor.
 -
 """
 function SwState(
-    model_run_range::StepRange{Date, Period}, zone_info::Dict{String, Any},
+    model_run_range::Union{StepRange{Date, Period}, Vector{Date}}, zone_info::Dict{String, Any},
     goulburn_alloc_scenario::String, dam_ext::DataFrame, env_systems::DataFrame, other_systems::DataFrame,
 )::SwState
 
