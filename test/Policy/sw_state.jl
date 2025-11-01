@@ -1,6 +1,8 @@
 @testset "#create SwState" begin
     @testset "simple parameters return correct struct" begin
-        model_run_range::StepRange{Date, Period} = Date("1968-05-01"):Week(1):Date("1988-04-30")
+        model_run_range = [
+            Date("1990-10-10"), Date("1990-10-11"), Date("1990-10-12"), Date("1990-10-13")
+        ]
         goulburn_alloc_scenario = "high"
         dam_ext = DataFrame(
             Time = [Date("1990-10-10"), Date("1990-10-11"), Date("1990-10-12"), Date("1990-10-13")],

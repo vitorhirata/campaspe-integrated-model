@@ -53,7 +53,7 @@
 end
 
 """
-    SwState(model_run_range::StepRange{Date, Period}, zone_info::Dict{String, Any}, goulburn_alloc_scenario::String, dam_ext::DataFrame, env_systems::DataFrame, other_systems::DataFrame)::SwState
+    SwState(model_run_range::Union{StepRange{Date, Period}, zone_info::Dict{String, Any}, goulburn_alloc_scenario::String, dam_ext::DataFrame, env_systems::DataFrame, other_systems::DataFrame)::SwState
 
 SwState constructor.
 
