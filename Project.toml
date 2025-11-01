@@ -17,7 +17,7 @@ Streamfall = "09d4d480-e905-4803-959d-af438f1c2811"
 YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
 
 [compat]
-Agtor = "0.2.0"
+Agtor = "0.2.1"
 Dates = "1.11.0"
 StatsBase = "0.34.6"
 Streamfall = "0.6.0"
