@@ -3,7 +3,7 @@
     season_start::Date = Date(1900, 7, 1) # July 1 (irrigation season start and allocation computed). Year ignored
     first_release::Date = Date(1900, 8, 15) # August 15 (first release date). Year ignored
     season_end::Date = Date(1900, 4, 30) # April 30 (irrigation season end).  Year ignored
-    timestep::Day = Day(7) # Length of the model time step. TODO: Check if 7 or 14 days
+    timestep::Day = Day(14) # Length of the model time step.
     ts::Int64 = 1 # Day timestep counter
     current_year::Int64 = 1 # Year timestep counter
     next_run::Union{Date, Nothing} = nothing # Next scheduled run date

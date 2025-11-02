@@ -64,8 +64,8 @@
             fill(100.0, 365), 200000.0, 100000.0, 7
         )
 
-        # Now test mid-season (a week later) - use zero orders to avoid allocation issues
-        date_mid = Date("1970-07-08")
+        # Now test mid-season (two week later) - use zero orders to avoid allocation issues
+        date_mid = Date("1970-07-15")
         global_timestep = 8
         f_orders = Dict("1" => 10.0, "2" => 10.0)
         rochester_flow = fill(100.0, 365)  # Below 120 target for winterlow
@@ -110,8 +110,8 @@
             fill(150.0, 365), 200000.0, 175.0, 7
         )
 
-        # Call on end of season date (one week later) with zero orders
-        date_end = Date("1970-07-08")
+        # Call on end of season date (two weeks later) with zero orders
+        date_end = Date("1970-07-15")
         global_timestep = 8
         f_orders = Dict("1" => 10.0, "2" => 10.0)  # Zero orders for testing
         rochester_flow = fill(150.0, 365)
