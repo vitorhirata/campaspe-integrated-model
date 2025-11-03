@@ -137,8 +137,10 @@ Update groundwater trigger bore level.
 function set_trigger_levels(gw_state::GwState)::Nothing
     for bore in keys(gw_state.gw_levels)
         # Update GW level for a zone if key matches associated name or bore id
-        m = [v for (key, v) in gw_state.zone_rows if occursin(lowercase(bore), key)][1]
-        gw_state.zone_info[m, "gw_triggerbore_level"] .= gw_state.gw_levels[bore]
+        m = [v for (key, v) in gw_state.zone_rows if occursin(lowercase(bore), key)]
+        if !isempty(m)
+            gw_state.zone_info[m[1], "gw_triggerbore_level"] .= gw_state.gw_levels[bore]
+        end
     end
 
     return nothing
@@ -156,19 +158,21 @@ given water level.
 """
 function set_allocation_prop(gw_state::GwState, table_name::String)::Nothing
     for bore in keys(gw_state.gw_levels)
-        m = [v for (key, v) in gw_state.zone_rows if occursin(lowercase(bore), key)][1]
+        m = [v for (key, v) in gw_state.zone_rows if occursin(lowercase(bore), key)]
+        if !isempty(m)
+            m = m[1]
+            zone_bore = gw_state.zone_info[m, "TrigBore"][1]
+            tgt_bore = gw_state.trigger_tables[zone_bore][table_name]
 
-        zone_bore = gw_state.zone_info[m, "TrigBore"][1]
-        tgt_bore = gw_state.trigger_tables[zone_bore][table_name]
+            bore_depth_condition = gw_state.gw_levels[bore] .> tgt_bore.Depth
+            if sum(bore_depth_condition) != 0
+                tmp = maximum(tgt_bore[bore_depth_condition, :Depth])
+            else
+                tmp = minimum(tgt_bore[gw_state.gw_levels[bore] .< tgt_bore.Depth, :Depth])
+            end
 
-        bore_depth_condition = gw_state.gw_levels[bore] .> tgt_bore.Depth
-        if sum(bore_depth_condition) != 0
-            tmp = maximum(tgt_bore[bore_depth_condition, :Depth])
-        else
-            tmp = minimum(tgt_bore[gw_state.gw_levels[bore] .< tgt_bore.Depth, :Depth])
+            gw_state.zone_info[m, "gw_proportion"] .= tgt_bore[tgt_bore.Depth .== tmp, "Proportion"]
         end
-
-        gw_state.zone_info[m, "gw_proportion"] .= tgt_bore[tgt_bore.Depth .== tmp, "Proportion"]
     end
 
     return nothing

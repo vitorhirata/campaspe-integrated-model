@@ -79,7 +79,7 @@ function create_trigger_tables(zone_info::DataFrame, data_path::String)::Dict{St
     trigger_bores = filter(isdir, readdir(joinpath(data_path, "trigger_bores"), join=true))
 
     if length(trigger_bores) != length(zone_trigbores)
-        throw(ArgumentError("Number of trigger bores in shapefile do not match number of data folders"))
+        #throw(ArgumentError("Number of trigger bores in shapefile do not match number of data folders"))
     end
 
     result = Dict()

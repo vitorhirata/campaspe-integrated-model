@@ -247,8 +247,8 @@ function dam_release(sw_state::SwState, date::Date, water_orders::Dict, other_re
     daily_water_orders = Dict(zone => order / release_timeframe for (zone, order) in water_orders)
 
     # Calculate transmission and operational losses
-    eppalock_trans_loss = daily_water_orders["Regulated 4A"] * epp_loss
-    weir_op_loss = daily_water_orders["Regulated 4C"] * weir_loss
+    eppalock_trans_loss = daily_water_orders["Regulated"] * epp_loss / 2
+    weir_op_loss = daily_water_orders["Regulated"] * weir_loss / 2
 
     # Determine minimum passing flows if not provided
     if isnothing(meps) && isnothing(mcs)

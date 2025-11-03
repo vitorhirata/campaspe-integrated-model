@@ -26,7 +26,7 @@ function sample_individual_options(start_day::String, end_day::String, climate_t
         :end_day => end_day,
         # Farm parameters
         :farm_climate_path => farm_climate_path,
-        :farm_path => "data/farm/basin",
+        :farm_path => "data/farm/simplified_basin",
         :farm_step => 14,
         # Policy parameters
         :policy_path => "data/policy",

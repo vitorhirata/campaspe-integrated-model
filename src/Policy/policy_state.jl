@@ -53,7 +53,7 @@ water entitlements based on cropping areas and trading zones.
 """
 function zonal_info(zone_data_path::String)::Tuple{Dict{String, Any}, DataFrame, DataFrame, DataFrame}
     # Read farm zone shapefile
-    farm_zone_path = joinpath(zone_data_path, "farm_info.csv")
+    farm_zone_path = joinpath(zone_data_path, "farm_info_lump.csv")
     zone_df = DataFrame(CSV.File(farm_zone_path, types=Dict("ZoneID" => String, "TrigBore" => String)))
 
     # Calculate water system aggregations
