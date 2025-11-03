@@ -49,7 +49,7 @@ Updates groundwater allocation and carryover, based on water entitlement and wat
 function licence(gw_state::GwState, date::Date)::Nothing
     entitlement = gw_state.zone_info.gw_Ent
 
-    if Dates.year(date) > 1
+    if gw_state.current_year > 1
         gw_state.zone_info.gw_alloc = (entitlement .* gw_state.zone_info.gw_proportion) .+ gw_state.zone_info.gw_carryover
     else
         gw_state.zone_info.gw_alloc = (entitlement .* gw_state.zone_info.gw_proportion)
