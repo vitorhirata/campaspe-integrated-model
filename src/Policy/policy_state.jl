@@ -56,25 +56,10 @@ function zonal_info(zone_data_path::String)::Tuple{Dict{String, Any}, DataFrame,
     farm_zone_path = joinpath(zone_data_path, "farm_info.csv")
     zone_df = DataFrame(CSV.File(farm_zone_path, types=Dict("ZoneID" => String, "TrigBore" => String)))
 
-    # Read agricultural area CSV and convert ZoneID to string
-    ag_area_path = joinpath(zone_data_path, "areas_by_crop_type.csv")
-    ag_area = DataFrame(CSV.File(ag_area_path, types=Dict("ZoneID" => String)))
-    ag_area .= coalesce.(ag_area, 0)  # Replace missing values by 0
-
-    # Merge agricultural area data with zone shapefile
-    zone_df = leftjoin(zone_df, ag_area, on=:ZoneID)
-
     # Calculate water system aggregations
-    # Filter out rows with missing WatSystem before groupby (matching Python's dropna=True behavior)
     zone_df_filtered = filter(row -> !ismissing(row.WatSystem), zone_df)
-
-    # Group by WatSystem to get max wat_HR (Campaspe Entitlement for each SW zone)
     water_systems = combine(groupby(zone_df_filtered, :WatSystem), :wat_HR => maximum => :water_ent)
-
-    # Group by WatSystem to sum agric_ha (Cropping area for each SW Zone)
-    agri_area = combine(groupby(zone_df_filtered, :WatSystem), :agric_ha => sum => :area)
-
-    # Combine into system_area DataFrame
+    agri_area = combine(groupby(zone_df_filtered, :WatSystem), :Area_Ha => sum => :area)
     system_area = leftjoin(agri_area, water_systems, on=:WatSystem)
 
     # Calculate groundwater proportional area by trading zone
@@ -82,7 +67,6 @@ function zonal_info(zone_data_path::String)::Tuple{Dict{String, Any}, DataFrame,
 
     # Add calculated columns to zone_df
     zone_df[!, :watsys_agri_area] = zeros(nrow(zone_df))
-    zone_df[!, :gw_Ent] = zeros(nrow(zone_df))
     zone_df[!, :prop_crop_area] = zeros(nrow(zone_df))
 
     # Calculate proportional values for each zone
@@ -92,27 +76,19 @@ function zonal_info(zone_data_path::String)::Tuple{Dict{String, Any}, DataFrame,
             gw_proportional_area = 0.0
         else
             # Find the system area for this water system
-            sys_match = filter(r -> r.WatSystem == row.WatSystem, system_area)
-            if nrow(sys_match) > 0
-                zone_df[idx, :watsys_agri_area] = sys_match[1, :area]
-            else
-                zone_df[idx, :watsys_agri_area] = 0.0
-            end
+            sys_match = findfirst(isequal(row.WatSystem), system_area.WatSystem)
+            zone_df[idx, :watsys_agri_area] = system_area[sys_match, :area]
 
             # Calculate groundwater proportional area
-            gw_match = filter(r -> r.TRADING_ZO == row.TRADING_ZO, gw_area)
-            if nrow(gw_match) > 0 && gw_match[1, :zone_ha_sum] > 0
-                gw_proportional_area = row.zone_ha / gw_match[1, :zone_ha_sum]
-            else
-                gw_proportional_area = 0.0
-            end
+            gw_match = findfirst(isequal(row.TRADING_ZO), gw_area.TRADING_ZO)
+            gw_proportional_area = row.zone_ha / gw_area[gw_match, :zone_ha_sum]
         end
 
         # Calculate groundwater entitlement
         zone_df[idx, :gw_Ent] = row.wat_GW * gw_proportional_area
 
         # Calculate proportional crop area
-        prop_area = row.agric_ha / row.zone_ha
+        prop_area = row.Area_Ha / row.zone_ha
         if isinf(prop_area) || isnan(prop_area)
             zone_df[idx, :prop_crop_area] = 0.0
         else
@@ -120,32 +96,15 @@ function zonal_info(zone_data_path::String)::Tuple{Dict{String, Any}, DataFrame,
         end
     end
 
-    # Add Camp_HR_Ent and Camp_LR_Ent columns (these should come from the shapefile or be calculated)
-    # Based on Python code, these appear to be proportional entitlements
-    # For now, assuming they might need to be calculated or are in the shapefile
-    if !hasproperty(zone_df, :Camp_HR_Ent)
-        zone_df[!, :Camp_HR_Ent] = zone_df.wat_HR .* zone_df.prop_crop_area
-    end
-    if !hasproperty(zone_df, :Camp_LR_Ent)
-        zone_df[!, :Camp_LR_Ent] = zone_df.wat_LR .* zone_df.prop_crop_area
-    end
+    # Adjust Goulburn entitlements based on proportional crop area (matches Python line 124-125)
+    zone_df[!, :goul_HR] = (zone_df.Area_Ha ./ zone_df.zone_ha) .* zone_df.goul_HR
+    zone_df[!, :goul_LR] = (zone_df.Area_Ha ./ zone_df.zone_ha) .* zone_df.goul_LR
 
-    # Adjust Goulburn entitlements based on proportional crop area
-    zone_df[!, :goul_HR] = (zone_df.agric_ha ./ zone_df.zone_ha) .* zone_df.goul_HR
-    zone_df[!, :goul_LR] = (zone_df.agric_ha ./ zone_df.zone_ha) .* zone_df.goul_LR
-
-    # Replace NaN values with 0
+    # Replace missing values with 0
+    zone_df[!, :Camp_HR_Ent] = coalesce.(zone_df.Camp_HR_Ent, 0.0)
+    zone_df[!, :Camp_LR_Ent] = coalesce.(zone_df.Camp_LR_Ent, 0.0)
     zone_df[!, :goul_HR] = coalesce.(zone_df.goul_HR, 0.0)
     zone_df[!, :goul_LR] = coalesce.(zone_df.goul_LR, 0.0)
-
-    # Add Goul_HR_Ent and Goul_LR_Ent if not present
-    if !hasproperty(zone_df, :Goul_HR_Ent)
-        zone_df[!, :Goul_HR_Ent] = zone_df.goul_HR
-    end
-    if !hasproperty(zone_df, :Goul_LR_Ent)
-        zone_df[!, :Goul_LR_Ent] = zone_df.goul_LR
-    end
-
     zone_df[!, :Goul_HR_Ent] = coalesce.(zone_df.Goul_HR_Ent, 0.0)
     zone_df[!, :Goul_LR_Ent] = coalesce.(zone_df.Goul_LR_Ent, 0.0)
 
@@ -176,7 +135,7 @@ function zonal_info(zone_data_path::String)::Tuple{Dict{String, Any}, DataFrame,
             "water_system" => ismissing(row.WatSystem) ? nothing : row.WatSystem,
             "regulation_zone" => row.SurfaceTra,
             "areas" => Dict{String, Float64}(
-                "crop_ha" => row.agric_ha,
+                "crop_ha" => row.Area_Ha,
                 "zone_ha" => row.zone_ha
             ),
             "name" => row.FULLNAME,
