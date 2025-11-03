@@ -77,14 +77,17 @@ function update_farm(
             zone.water_sources[gw_index].head = gw_levels[zone_id]
         end
 
+        # Get past irrigation volumes from all fields in the zone
+        past_sw_vol, past_gw_vol = irrigation_orders(zone)
+
         # Run farm optimization for this timestep
         CampaspeIntegratedModel.Agtor.run_timestep!(zone.manager, zone, ts, dt)
 
-        # Get irrigation volumes from all fields in the zone
+        # Get new irrigation volumes from all fields in the zone
         sw_vol, gw_vol = irrigation_orders(zone)
 
-        sw_orders[zone_id] = sw_vol
-        gw_orders[zone_id] = gw_vol
+        sw_orders[zone_id] = sw_vol - past_sw_vol
+        gw_orders[zone_id] = gw_vol - past_gw_vol
     end
 
     if is_same_day(dt, farm_state.plant_season_end)
