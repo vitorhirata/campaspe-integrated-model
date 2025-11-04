@@ -1,9 +1,9 @@
 using Streamfall
 
 """
-    update_surface_water(sn::Streamfall.StreamfallNetwork, climate::Streamfall.Climate, ts::Int64, date::Date, extraction::DataFrame, exchange::Dict{String, Float64})::Nothing
+    update_water(sn::Streamfall.StreamfallNetwork, climate::Streamfall.Climate, ts::Int64, date::Date, extraction::DataFrame)::Nothing
 
-Update and run the surface water model for a single timestep.
+Update and run the surface water and groundwater model for a single timestep.
 
 # Arguments
 - `sn::Streamfall.StreamfallNetwork` : Surface water network
@@ -11,14 +11,12 @@ Update and run the surface water model for a single timestep.
 - `ts::Int64` : Current timestep index
 - `date::Date` : Current date
 - `extraction::DataFrame` : DataFrame containing water extractions and releases
-- `exchange::Dict{String, Float64}` : Groundwater-surface water exchange fluxes by gauge ID
 
 # Returns
 - `Nothing`
 """
-function update_surface_water(
-    sn::Streamfall.StreamfallNetwork, climate::Streamfall.Climate, ts::Int64, date::Date,
-    extraction::DataFrame, exchange::Dict{String, Float64}
+function update_water(
+    sn::Streamfall.StreamfallNetwork, climate::Streamfall.Climate, ts::Int64, date::Date, extraction::DataFrame
 )::Nothing
     if ts == 1
         timesteps = CampaspeIntegratedModel.Streamfall.sim_length(climate)
@@ -27,13 +25,8 @@ function update_surface_water(
 
     inlets, outlets = CampaspeIntegratedModel.Streamfall.find_inlets_and_outlets(sn)
 
-    # TODO: Temporary solution. Compute mean exchange for all gauges because the current code does not support receiving
-    # one value for each gauges. A better solution is creating a dataframe with all dates and fill the correct value.
-    # Probably create a struct.
-    exchange = mean(values(exchange))
-
     for outlet in outlets
-        CampaspeIntegratedModel.Streamfall.run_node!(sn, outlet, climate, ts; extraction=extraction, exchange=exchange)
+        CampaspeIntegratedModel.Streamfall.run_node!(sn, outlet, climate, ts; extraction=extraction)
     end
     return nothing
 end
@@ -105,4 +98,34 @@ Get the Rochester flow time series.
 function rochester_flow(sn::Streamfall.StreamfallNetwork, id::String = "406202")::Vector{Float64}
     _, node = CampaspeIntegratedModel.Streamfall.get_node(sn, id)
     return node.outflow
+end
+
+function gw_levels(
+    sn::Streamfall.StreamfallNetwork, ts::Int64, ids::Tuple{String}=("", "")
+)::Tuple{Dict{String,Float64},Dict{String,Float64}}
+    node_218 = get_node(sn, "406218")[2] ## Linked to bore 62589
+    node_265 = get_node(sn, "406265")[2] ## Linked to bore 79324
+
+    # trigger_head dict for policy model
+    trigger_head = Dict(
+        "62589" => calculate_head_from_depth(get_simulated_depth(node_218, ts), node_218.bore_ground_elevation),
+        "79324" => calculate_head_from_depth(get_simulated_depth(node_265, ts), node_265.bore_ground_elevation)
+    )
+
+    # Fill average gw_depth depending on which bore each zone uses. Based on zone_info data
+    avg_gw_depth = Dict(
+        "1" => trigger_head["62589"],
+        "2" => trigger_head["62589"],
+        "3" => trigger_head["79324"],
+        "4" => trigger_head["79324"],
+        "5" => trigger_head["79324"],
+        "6" => trigger_head["79324"],
+        "7" => trigger_head["79324"],
+        "8" => trigger_head["79324"],
+        "9" => trigger_head["79324"],
+        "10" => trigger_head["79324"],
+        "11" => trigger_head["79324"],
+        "12" => trigger_head["79324"],
+    )
+    return trigger_head, avg_gw_depth
 end

@@ -57,11 +57,10 @@ end
     run_model(scenario::DataFrameRow)::Tuple{Dict, Vector{Float64}}
 
 Run the Campaspe integrated water resource model.
-Integrates four coupled submodels to simulate water resource dynamics.
+Integrates three coupled submodels to simulate water resource dynamics.
 1. Farm model (Agtor.jl) - Agricultural water demand and irrigation decisions
-2. Surface water model (Streamfall.jl) - River and dam hydrology
-3. Groundwater model - Aquifer dynamics and extraction (TODO: not yet implemented)
-4. Policy model - Water allocation and environmental flow rules
+2. Hydrology water model (Streamfall.jl) - River, dam and groundwater hydrology
+3. Policy model - Water allocation and environmental flow rules
 
 The model runs on a daily timestep, with some models running on a coarser
 resolution. Each internal models is responsible to check if it should be runned.
@@ -150,7 +149,6 @@ function run_model(scenario::DataFrameRow)::Tuple{DataFrame,Vector{Float64},Vect
     farm_gw_orders_ML = copy(farm_sw_orders_orig)
 
     # Initialize groundwater model outputs (used when ts == run_length and groundwater model doesn't run)
-    exchange = Dict{String,Float64}()
     trigger_head = Dict{String,Float64}()
     avg_gw_depth = Dict{String,Float64}()
 
@@ -167,13 +165,12 @@ function run_model(scenario::DataFrameRow)::Tuple{DataFrame,Vector{Float64},Vect
         next_day = ts + 1
 
         if ts < run_length
-            # run groundwater model # TODO
-            exchange, trigger_head, avg_gw_depth = update_groundwater()
-
             # Run surface water model
             add_ext = get_dam_extraction(policy_state.sw_state, dt)
             dam_extraction[ts, "406000_releases_[ML]"] += add_ext
-            update_surface_water(sn, sw_climate, ts, dt, dam_extraction, exchange)
+            update_water(sn, sw_climate, ts, dt, dam_extraction)
+
+            trigger_head, avg_gw_depth = gw_levels(sn, ts)
         end
 
         # Run policy model

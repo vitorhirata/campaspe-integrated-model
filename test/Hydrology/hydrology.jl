@@ -1,4 +1,4 @@
-@testset "Surface Water Model - update_surface_water" begin
+@testset "Surface Water Model - update_water" begin
     @testset "runs without errors" begin
         # Load test network and climate data
         network_path = "data/surface_water/two_node_network.yml"
@@ -10,17 +10,12 @@
         # Create extraction DataFrame
         extraction = DataFrame("Date" => climate.climate_data.Date, "406000_releases_[ML]" => 0.0)
 
-        # Create exchange dictionary
-        exchange = Dict{String, Float64}("406219" => 0.0, "406000" => 0.0)
-
         # Test running on May 1st
         ts = 1
         date = Date("2000-05-01")
 
         # Should run without errors
-        @test_nowarn CampaspeIntegratedModel.update_surface_water(
-            sn, climate, ts, date, extraction, exchange
-        )
+        @test_nowarn CampaspeIntegratedModel.update_water(sn, climate, ts, date, extraction)
 
         # Check that the model updated storage
         _, dam_node = CampaspeIntegratedModel.Streamfall.get_node(sn, "406000")
@@ -36,15 +31,12 @@
 
         # Create extraction with non-zero releases
         extraction = DataFrame("Date" => climate.climate_data.Date, "406000_releases_[ML]" => 100.0)
-        exchange = Dict{String, Float64}("406219" => 0.0, "406000" => 0.0)
 
         ts = 1
         date = Date("2000-05-01")
 
         # Should run without errors with extractions
-        @test_nowarn CampaspeIntegratedModel.update_surface_water(
-            sn, climate, ts, date, extraction, exchange
-        )
+        @test_nowarn CampaspeIntegratedModel.update_water(sn, climate, ts, date, extraction)
     end
 
     @testset "runs multiple timesteps sequentially" begin
@@ -55,14 +47,11 @@
         sn = CampaspeIntegratedModel.Streamfall.load_network("TestNetwork", network_path)
 
         extraction = DataFrame("Date" => climate.climate_data.Date, "406000_releases_[ML]" => 0.0)
-        exchange = Dict{String, Float64}("406219" => 0.0, "406000" => 0.0)
 
         # Run for 5 timesteps
         for ts in 1:5
             date = Date("2000-05-01") + Dates.Day(ts - 1)
-            CampaspeIntegratedModel.update_surface_water(
-                sn, climate, ts, date, extraction, exchange
-            )
+            CampaspeIntegratedModel.update_water(sn, climate, ts, date, extraction)
         end
 
         # Check that storage was updated for all timesteps

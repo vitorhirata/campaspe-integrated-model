@@ -1,20 +1,20 @@
-406219:
+406214:
   node_type: "IHACRESBilinearNode"
-  area: 1985.73
+  area: 268.77
   parameters:
-    d: 205.9296682315772
-    d2: 1.5219519661190162
-    e: 1.0
-    f: 1.1612900313855028
-    a: 9.999999999175559
-    b: 0.0011479482142380236
-    storage_coef: 9.99999999952744
-    alpha: 0.8917155227322869
-  initial_storage: 100.0
+    d: 84.9544674295539
+    d2: 1.601624368761916
+    e: 0.9997675255650674
+    f: 1.171570857881092
+    a: 9.97971311254922
+    b: 0.0019890650975530966
+    storage_coef: 2.071153855384128
+    alpha: 0.7098464928980561
+  initial_storage: 0.0
   inlets: ~
   outlets:
-    - "406000"
-406202:
+    - "406201"
+406219:
   node_type: "IHACRESBilinearNode"
   area: 1985.73
   parameters:
@@ -61,4 +61,102 @@
       end
   inlets:
     - "406219"
+  outlets:
+    - "406201"
+406201:
+  node_type: "IHACRESBilinearNode"
+  area: 452.22
+  parameters:
+    d: 73.22986385653411
+    d2: 7.059786024568715
+    e: 0.9990003185863958
+    f: 0.01000009343364074
+    a: 9.999826405407267
+    b: 0.0110920412012123
+    storage_coef: 9.994547162629082
+    alpha: 0.9999997401807778
+  initial_storage: 0.0
+  inlets:
+    - "406214"
+    - "406000"
+  outlets:
+    - "406218"
+406224:
+  node_type: "IHACRESBilinearNode"
+  area: 220.71
+  parameters:
+    d: 40.06426538749421
+    d2: 4.586025241775152
+    e: 0.9999079682678819
+    f: 1.4577177558271883
+    a: 2.6876137531378266
+    b: 0.07021727779595653
+    storage_coef: 2.2804975224192607
+    alpha: 0.9999931030461001
+  initial_storage: 0.0
+  inlets: ~
+  outlets:
+    - "406218"
+406218:
+  node_type: "IHACRESBilinearNodeGW"
+  area: 254.07
+  parameters:
+    d: 38.674765180497054
+    d2: 0.00010682233860290142
+    e: 0.9999987131958372
+    f: 2.9964380061912514
+    a: 9.973725106307972
+    alpha: 0.999990814977358
+    # Groundwater parameters
+    tau_s: 50.0         # Slow flow time constant (days) - will calibrate
+    vs: 0.5             # Recharge fraction (0-1) - will calibrate
+    L: 0.0              # Constant loss (ML/day) - will calibrate
+    specific_yield: 0.15  # Aquifer specific yield for depth conversion
+  gauge_elevation: 119.2  # Stream bed elevation at gauge (mAHD) - from GPS survey Site 13upweir
+  bore_ground_elevation: 131.86  # Ground surface at bore 62589 (mAHD) - from GW_elevation.csv GPS survey
+  initial_gw_storage: 100.0  # Initial GW storage (ML) - will determine from spin-up
+  initial_storage: 0.0
+  inlets:
+    - "406201"
+    - "406224"
+  outlets:
+    - "406202"
+406202:
+  node_type: "IHACRESBilinearNode"
+  area: 62.78
+  parameters:
+    d: 45.842592850891755
+    d2: 7.252402066863858
+    e: 0.9990152199495923
+    f: 0.010000326654402647
+    a: 9.997611245807592
+    b: 0.0428505116963628
+    storage_coef: 9.9753827826277
+    alpha: 0.9999991809811831
+  initial_storage: 0.0
+  inlets:
+    - "406218"
+  outlets:
+    - "406265"
+406265:
+  node_type: "IHACRESBilinearNodeGW"
+  area: 162.84
+  parameters:
+    d: 125.01057236127932
+    d2: 0.003931759348635681
+    e: 0.9998605971041066
+    f: 2.1051251046381547
+    a: 0.23846847977872349
+    alpha: 0.8184355840679217
+    # Groundwater parameters
+    tau_s: 50.0         # Slow flow time constant (days) - will calibrate
+    vs: 0.5             # Recharge fraction (0-1) - will calibrate
+    L: 0.0              # Constant loss (ML/day) - will calibrate
+    specific_yield: 0.15  # Aquifer specific yield for depth conversion
+  gauge_elevation: 87.1  # Stream bed elevation at gauge (mAHD) - from GPS survey Site 2 & Site Details (87.3)
+  bore_ground_elevation: 98.12  # Ground surface at bore 79324 (mAHD) - from GW_elevation.csv GPS survey
+  initial_gw_storage: 100.0  # Initial GW storage (ML) - will determine from spin-up
+  initial_storage: 0.0
+  inlets:
+    - "406202"
   outlets: ~
