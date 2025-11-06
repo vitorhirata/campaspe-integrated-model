@@ -17,19 +17,19 @@ function implement_policy_option!(
     if policy_option == "implement_coupled_allocations"
         implement_coupled_allocations!(policy_state)
     elseif policy_option == "increase_environmental_water"
-        change_environmental_water!(policy_state.sw_state, 0.15)
+        change_environmental_water!(policy_state.sw_state, 0.4)
     elseif policy_option == "decrease_environmental_water"
-        change_environmental_water!(policy_state.sw_state, -0.15)
+        change_environmental_water!(policy_state.sw_state, -0.4)
     elseif policy_option == "increase_water_price"
-        map(zone -> change_water_price!(zone, 0.15), basin.zones)
+        map(zone -> change_water_price!(zone, 0.4), basin.zones)
     elseif policy_option == "decrease_water_price"
-        map(zone -> change_water_price!(zone, -0.15), basin.zones)
+        map(zone -> change_water_price!(zone, -0.4), basin.zones)
     elseif policy_option == "raise_dam_level"
-        raise_dam_level!(sn)
+        raise_dam_level!(sn, 0.4)
     elseif policy_option == "subsidise_irrigation_efficiency"
-        subsidise_irrigation_efficiency!(farm_state)
+        subsidise_irrigation_efficiency!(farm_state, -0.4)
     elseif policy_option == "subsidise_solar_pump"
-        subsidise_solar_pump!(farm_state)
+        subsidise_solar_pump!(farm_state, -0.4)
     elseif policy_option == "default"
         return nothing
     else

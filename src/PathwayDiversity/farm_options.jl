@@ -20,11 +20,11 @@ function implement_farm_option!(
     elseif farm_option == "adopt_drought_resistant_crops"
         map(zone -> adopt_drought_resistant_crops!(zone, farm_path), basin.zones)
     elseif farm_option == "improve_soil_TAW"
-        map(improve_soil_TAW!, basin.zones)
+        map(zone -> improve_soil_TAW!(zone; percentage_improve=0.4), basin.zones)
     elseif farm_option == "increase_farm_entitlements"
-        map(zone -> change_farm_entitlements!(zone, policy_state, 0.15), basin.zones)
+        map(zone -> change_farm_entitlements!(zone, policy_state, 0.4), basin.zones)
     elseif farm_option == "decrease_farm_entitlements"
-        map(zone -> change_farm_entitlements!(zone, policy_state, -0.15), basin.zones)
+        map(zone -> change_farm_entitlements!(zone, policy_state, -0.4), basin.zones)
     elseif farm_option == "default"
         return nothing
     else
