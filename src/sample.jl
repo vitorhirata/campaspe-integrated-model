@@ -30,7 +30,7 @@ function sample_individual_options(start_day::String, end_day::String, climate_t
         :farm_step => 14,
         # Policy parameters
         :policy_path => "data/policy",
-        :goulburn_alloc => "high",
+        :goulburn_alloc => "median",
         :restriction_type => "default",
         :max_carryover_perc => 0.25,
         :carryover_period => 1,
@@ -59,5 +59,5 @@ function sample_individual_options(start_day::String, end_day::String, climate_t
         scenario[1 + length(farm_options) + i, :policy_option] = policy_opt
     end
 
-    return scenario
+    return select(scenario, "policy_option", "farm_option" , Not("policy_option", "farm_option"))
 end
