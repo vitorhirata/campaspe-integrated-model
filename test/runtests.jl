@@ -3,6 +3,7 @@ using CampaspeIntegratedModel
 
 using DataFrames, Dates
 
+include("./Groundwater/test_bucket_gw.jl")
 include("./constructors.jl")
 include("./Policy/gw_state.jl")
 include("./Policy/gw_update.jl")
