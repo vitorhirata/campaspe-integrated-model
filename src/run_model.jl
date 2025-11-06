@@ -150,6 +150,7 @@ function run_model(scenario::DataFrameRow)::Tuple{DataFrame,Vector{Float64},Vect
     farm_gw_orders_ML = copy(farm_sw_orders_orig)
 
     # Initialize groundwater model outputs (used when ts == run_length and groundwater model doesn't run)
+    gw_model = CampaspeIntegratedModel.GWModel()
     exchange = Dict{String,Float64}()
     trigger_head = Dict{String,Float64}()
     avg_gw_depth = Dict{String,Float64}()
@@ -167,13 +168,13 @@ function run_model(scenario::DataFrameRow)::Tuple{DataFrame,Vector{Float64},Vect
         next_day = ts + 1
 
         if ts < run_length
-            # run groundwater model # TODO
-            exchange, trigger_head, avg_gw_depth = update_groundwater()
+            update_gw!(gw_model, sw_climate, farm_gw_orders_ML, ts)
+            trigger_head, avg_gw_depth = gw_levels(gw_model)
 
             # Run surface water model
             add_ext = get_dam_extraction(policy_state.sw_state, dt)
             dam_extraction[ts, "406000_releases_[ML]"] += add_ext
-            update_surface_water(sn, sw_climate, ts, dt, dam_extraction, exchange)
+            update_surface_water(sn, sw_climate, ts, dt, dam_extraction)
         end
 
         # Run policy model

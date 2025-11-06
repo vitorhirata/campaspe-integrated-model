@@ -18,7 +18,7 @@ Update and run the surface water model for a single timestep.
 """
 function update_surface_water(
     sn::Streamfall.StreamfallNetwork, climate::Streamfall.Climate, ts::Int64, date::Date,
-    extraction::DataFrame, exchange::Dict{String, Float64}
+    extraction::DataFrame, exchange::Dict{String, Float64} = Dict("1" => 0.0)
 )::Nothing
     if ts == 1
         timesteps = CampaspeIntegratedModel.Streamfall.sim_length(climate)
