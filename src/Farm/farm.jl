@@ -55,6 +55,7 @@ function update_farm(
     end
 
     # Update timesteps
+    old_ts = basin.current_ts.idx
     basin.current_ts = (ts, dt)
 
     for zone in basin.zones
@@ -63,12 +64,21 @@ function update_farm(
 
         if !is_same_day(dt, farm_state.plant_season_start)
             # Prepare water allocation data for this zone. Sum high and low reliability to get total surface water allocation
-            water_source_map = Dict(:surface_water => "SW", :groundwater => "GW")
+            water_allocs_agg = Dict(
+                :surface_water => sum(values(water_allocs[zone_id]["SW"])),
+                :groundwater => sum(values(water_allocs[zone_id]["GW"]))
+            )
             keys = Tuple([Symbol(ws.name) for ws in zone.water_sources])
-            vals = Tuple(sum(values(water_allocs[zone_id][water_source_map[key]])) for key in keys)
+            vals = Tuple(water_allocs_agg[key] for key in keys)
             zone_water_allocs = NamedTuple{keys}(vals)
 
             CampaspeIntegratedModel.Agtor.update_available_water!(zone, zone_water_allocs)
+
+            # Run rainfall and evapo for days out of fortnight
+            while old_ts < ts
+                Agtor.apply_rainfall!(zone, old_ts)
+                old_ts += 1
+            end
         end
 
         # Update groundwater head/depth for this zone
@@ -79,6 +89,7 @@ function update_farm(
 
         # Get past irrigation volumes from all fields in the zone
         past_sw_vol, past_gw_vol = irrigation_orders(zone)
+
 
         # Run farm optimization for this timestep
         CampaspeIntegratedModel.Agtor.run_timestep!(zone.manager, zone, ts, dt)
@@ -91,6 +102,8 @@ function update_farm(
     end
 
     if is_same_day(dt, farm_state.plant_season_end)
+        # Update plant_season_start for next season (set_next_crop! was called during run_timestep!)
+        farm_state.plant_season_start = basin.zones[1].fields[1].plant_date
         farm_state.is_plant_season = false
     end
 

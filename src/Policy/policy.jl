@@ -104,7 +104,7 @@ function get_avail_farm_allocations(policy_state::PolicyState)::Dict{String, Any
                         "HR" => (camp_hr + goul_hr) * policy_state.sw_cap,
                         "LR" => (camp_lr + goul_lr) * policy_state.sw_cap
                     ),
-                    "GW" => Dict{String, Float64}("HR" => gw_alloc, "LR" => 0.0)
+                    "GW" => Dict{String, Float64}("HR" => max(gw_alloc, 0.0), "LR" => 0.0)
                 )
             end
         end
