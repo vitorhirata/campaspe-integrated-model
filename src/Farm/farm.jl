@@ -48,11 +48,11 @@ function update_farm(
         return sw_orders, gw_orders
     end
     # If not on fortnight and not on start and end of season
-    if !(dt in farm_state.farm_dates) &&
-       !is_same_day(dt, farm_state.plant_season_start) &&
-       !is_same_day(dt, farm_state.plant_season_end)
-        return sw_orders, gw_orders
-    end
+    #if !(dt in farm_state.farm_dates) &&
+    #   !is_same_day(dt, farm_state.plant_season_start) &&
+    #   !is_same_day(dt, farm_state.plant_season_end)
+    #    return sw_orders, gw_orders
+    #end
 
     # Update timesteps
     basin.current_ts = (ts, dt)
@@ -62,10 +62,24 @@ function update_farm(
         zone_id = split(zone.name, "_")[end]
 
         if !is_same_day(dt, farm_state.plant_season_start)
-            # Prepare water allocation data for this zone. Sum high and low reliability to get total surface water allocation
-            water_source_map = Dict(:surface_water => "SW", :groundwater => "GW")
-            keys = Tuple([Symbol(ws.name) for ws in zone.water_sources])
-            vals = Tuple(sum(values(water_allocs[zone_id][water_source_map[key]])) for key in keys)
+            # Calculate allocations from policy model (sum high and low reliability)
+            policy_sw_alloc = sum(values(water_allocs[zone_id]["SW"]))
+            policy_gw_alloc = sum(values(water_allocs[zone_id]["GW"]))
+
+            # Build allocation NamedTuple only for water sources that exist in this zone
+            # Use minimum between policy allocation and current farm allocation
+            alloc_dict = Dict{Symbol, Float64}()
+            for ws in zone.water_sources
+                if ws.name == "surface_water"
+                    alloc_dict[:surface_water] = min(policy_sw_alloc, ws.allocation)
+                elseif ws.name == "groundwater"
+                    alloc_dict[:groundwater] = min(policy_gw_alloc, ws.allocation)
+                end
+            end
+
+            # Convert to NamedTuple for update_available_water!
+            keys = Tuple(Symbol(ws.name) for ws in zone.water_sources)
+            vals = Tuple(alloc_dict[key] for key in keys)
             zone_water_allocs = NamedTuple{keys}(vals)
 
             CampaspeIntegratedModel.Agtor.update_available_water!(zone, zone_water_allocs)
@@ -91,6 +105,8 @@ function update_farm(
     end
 
     if is_same_day(dt, farm_state.plant_season_end)
+        # Update plant_season_start for next season (set_next_crop! was called during run_timestep!)
+        farm_state.plant_season_start = basin.zones[1].fields[1].plant_date
         farm_state.is_plant_season = false
     end
 
