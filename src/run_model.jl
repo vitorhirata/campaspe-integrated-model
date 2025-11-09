@@ -71,6 +71,7 @@ resolution. Each internal models is responsible to check if it should be runned.
   - `:farm_climate_path` : Path to CSV with farm climate data (Date, rainfall, evaporation)
   - `:start_day` : Start date for model run (String or Date)
   - `:end_day` : End date for model run (String or Date)
+  - `:recreational_path` : Path to CSV with recreational curve data
   - `:dam_extractions_path` : Path to CSV with historical dam extractions
   - `:policy_path` : Path to water allocation policy configuration
   - `:goulburn_alloc` : Goulburn water allocation parameters
@@ -208,6 +209,9 @@ function run_model(scenario::DataFrameRow)::Tuple{DataFrame,Vector{Float64},Vect
 
     farm_results = parse_farm_results(Agtor.collect_results(campaspe_basin))
     dam_level_ts = dam_level(sn)
+
+    recreational_path = get(scenario, :recreational_path, "data/policy/recreation_curve.csv")
+    recreational_curve = DataFrame(CSV.File(recreational_path))
 
     @info "Finished run"
     return farm_results, dam_level_ts, recreational_index(dam_level_ts), policy_state.sw_state.env_orders

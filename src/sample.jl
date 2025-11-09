@@ -24,6 +24,7 @@ function sample_individual_options(start_day::String, end_day::String, climate_t
     scenario = DataFrame(Dict(
         :start_day => start_day,
         :end_day => end_day,
+        :recreational_path => "data/policy/recreation_curve.csv",
         # Farm parameters
         :farm_climate_path => farm_climate_path,
         :farm_path => "data/farm/basin",
