@@ -196,7 +196,7 @@ function run_model(scenario::DataFrameRow)::Tuple{DataFrame,Vector{Float64},Vect
             not_zero_release = !isapprox(water_release, 0.0; atol=1e-6)
             if was_released && not_zero_release
                 end_date = (ts + farm_step <= nrow(dam_extraction)) ? ts + farm_step : size(dam_extraction)[1]
-                dam_extraction[(ts+1):(end_date), "406000_releases_[ML]"] .+= water_release
+                dam_extraction[next_day:end_date, "406000_releases_[ML]"] .+= water_release
                 farm_sw_orders = copy(farm_sw_orders_orig) # reset farm sw orders
             end
         end
