@@ -30,14 +30,16 @@ using CampaspeIntegratedModel
         gw = CampaspeIntegratedModel.GWModel(a=1.0, b=0.1, c=10000.0, d=0.01, e=0.001, G=10000.0, bore_ground_elevation=100.0)
 
         # With G_t = c, exchange term is zero
+        # exchange = (c - G_t) * d = (10000 - 10000) * 0.01 = 0
         # G_new = 10000 + 1.0*10 - 0.1*5 - 0 + 0 = 10009.5
+        # Returns -exchange = 0.0
         rainfall = 10.0  # mm/day
         evap = 5.0       # mm/day
         extraction = 0.0  # ML/day
 
-        G_new = CampaspeIntegratedModel.update_gw!(gw, rainfall, evap, extraction)
+        sw_exchange = CampaspeIntegratedModel.update_gw!(gw, rainfall, evap, extraction)
 
-        @test G_new ≈ 10009.5
+        @test sw_exchange ≈ 0.0  # No exchange when G_t = c
         @test gw.G ≈ 10009.5
         @test length(gw.storage) == 2
         @test length(gw.heads) == 2
@@ -47,14 +49,16 @@ using CampaspeIntegratedModel
     @testset "Water balance - with extraction" begin
         gw = CampaspeIntegratedModel.GWModel(a=1.0, b=0.1, c=10000.0, d=0.01, e=0.001, G=10000.0, bore_ground_elevation=100.0)
 
+        # exchange = (c - G_t) * d = (10000 - 10000) * 0.01 = 0
         # G_new = 10000 + 1.0*10 - 0.1*5 - 30 + 0 = 9979.5
+        # Returns -exchange = 0.0
         rainfall = 10.0  # mm/day
         evap = 5.0       # mm/day
         extraction = 30.0  # ML/day (total)
 
-        G_new = CampaspeIntegratedModel.update_gw!(gw, rainfall, evap, extraction)
+        sw_exchange = CampaspeIntegratedModel.update_gw!(gw, rainfall, evap, extraction)
 
-        @test G_new ≈ 9979.5
+        @test sw_exchange ≈ 0.0  # No exchange when G_t = c
         @test gw.G ≈ 9979.5
     end
 
@@ -62,12 +66,14 @@ using CampaspeIntegratedModel
         gw = CampaspeIntegratedModel.GWModel(a=0.0, b=0.0, c=10000.0, d=0.1, e=0.001, G=8000.0, bore_ground_elevation=100.0)
 
         # When G_t < c: positive exchange (dam -> GW)
-        # G_new = 8000 + 0 - 0 - 0 + (10000 - 8000)*0.1 = 8000 + 200 = 8200
+        # exchange = (c - G_t) * d = (10000 - 8000) * 0.1 = 200
+        # G_new = 8000 + 0 - 0 - 0 + 200 = 8200
+        # Returns -exchange = -200 (negative = infiltration into aquifer for SW model)
         extraction = 0.0
 
-        G_new = CampaspeIntegratedModel.update_gw!(gw, 0.0, 0.0, extraction)
+        sw_exchange = CampaspeIntegratedModel.update_gw!(gw, 0.0, 0.0, extraction)
 
-        @test G_new ≈ 8200.0
+        @test sw_exchange ≈ -200.0  # Negative = infiltration into aquifer
         @test gw.G ≈ 8200.0
     end
 
@@ -75,12 +81,14 @@ using CampaspeIntegratedModel
         gw = CampaspeIntegratedModel.GWModel(a=0.0, b=0.0, c=10000.0, d=0.1, e=0.001, G=12000.0, bore_ground_elevation=100.0)
 
         # When G_t > c: negative exchange (GW -> dam)
-        # G_new = 12000 + 0 - 0 - 0 + (10000 - 12000)*0.1 = 12000 - 200 = 11800
+        # exchange = (c - G_t) * d = (10000 - 12000) * 0.1 = -200
+        # G_new = 12000 + 0 - 0 - 0 - 200 = 11800
+        # Returns -exchange = 200 (positive = outflow from aquifer for SW model)
         extraction = 0.0
 
-        G_new = CampaspeIntegratedModel.update_gw!(gw, 0.0, 0.0, extraction)
+        sw_exchange = CampaspeIntegratedModel.update_gw!(gw, 0.0, 0.0, extraction)
 
-        @test G_new ≈ 11800.0
+        @test sw_exchange ≈ 200.0  # Positive = outflow from aquifer to stream
         @test gw.G ≈ 11800.0
     end
 
@@ -88,11 +96,13 @@ using CampaspeIntegratedModel
         gw = CampaspeIntegratedModel.GWModel(a=0.0, b=0.0, c=10000.0, d=0.0, e=0.001, G=100.0, bore_ground_elevation=100.0)
 
         # Extraction exceeds available water
+        # exchange = (c - G_t) * d = (10000 - 100) * 0.0 = 0
+        # G_new = 100 + 0 - 0 - 150 + 0 = -50 -> clamped to 0
         extraction = 150.0
 
-        G_new = CampaspeIntegratedModel.update_gw!(gw, 0.0, 0.0, extraction)
+        sw_exchange = CampaspeIntegratedModel.update_gw!(gw, 0.0, 0.0, extraction)
 
-        @test G_new == 0.0
+        @test sw_exchange ≈ 0.0  # No exchange when d=0
         @test gw.G == 0.0
     end
 

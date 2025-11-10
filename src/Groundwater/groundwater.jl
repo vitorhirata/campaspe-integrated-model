@@ -81,7 +81,7 @@ Update the groundwater model for one timestep.
 - `extraction::Dict{String,Float64}` : Groundwater extractions by zone (ML/day). Keys are zone IDs ("1", "2", etc.)
 
 # Returns
-- `Float64` : Updated groundwater volume (ML)
+- `Float64` : Groundwater exchange with surface water. Negative values represent infiltration into aquifer.
 
 # Example
 ```julia
@@ -92,7 +92,8 @@ new_volume = update_gw!(gw_model, 2.5, 3.0, extraction)
 """
 function update_gw!(model::GWModel, rainfall::Float64, evap::Float64, extraction::Float64)::Float64
     # Water balance equation: G_(t+1) = G_t + a*rainfall - b*evap - extraction + (c - G_t)*d
-    G_new = model.G + model.a * rainfall - model.b * evap - extraction + (model.c - model.G) * model.d
+    exchange = (model.c - model.G) * model.d
+    G_new = model.G + model.a * rainfall - model.b * evap - extraction + exchange
 
     # Prevent negative volume
     model.G = max(0.0, G_new)
@@ -106,7 +107,7 @@ function update_gw!(model::GWModel, rainfall::Float64, evap::Float64, extraction
     push!(model.heads, head)
     push!(model.depths, depth)
 
-    return model.G
+    return -exchange
 end
 function update_gw!(model::GWModel, climate::Streamfall.Climate, extraction::Dict{String,Float64}, ts::Int64)::Float64
     # Sum all zone extractions
