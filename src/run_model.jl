@@ -209,6 +209,8 @@ function run_model(scenario::DataFrameRow)::Tuple{DataFrame,Vector{Float64},Vect
 
     farm_results = parse_farm_results(Agtor.collect_results(campaspe_basin))
     dam_level_ts = dam_level(sn)
+    # On the last step the SW model don't run. Assume last timestep has same level
+    dam_level_ts[end] = dam_level_ts[end-1]
 
     recreational_path = get(scenario, :recreational_path, "data/policy/recreation_curve.csv")
     recreational_curve = DataFrame(CSV.File(recreational_path))
