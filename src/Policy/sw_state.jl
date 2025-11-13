@@ -73,7 +73,7 @@ function SwState(
     total_n_weeks = round(Int, (length(model_run_range) / 7) + 1) + 7
     total_n_years = round(Int, (length(model_run_range) / 356) + 1)
     gmw_vol = zeros(total_n_weeks)
-    env_orders = zeros(total_n_weeks)
+    env_orders = zeros(length(model_run_range))  # Use total days, not weeks, since indexed by global_timestep
     carryover_state = zeros(total_n_years)
     yearly_carryover = zeros(total_n_years)
     proj_inflow = zeros(total_n_weeks)

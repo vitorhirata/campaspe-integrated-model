@@ -49,7 +49,7 @@ function update_surface_water(
     # Determine environmental water orders
     env_order = run_model!(sw_state.env_state, global_timestep, date, rochester_flow,
                           other_orders + farm_orders, env_hr, env_lr, dam_vol)
-    sw_state.env_orders[sw_state.ts] = env_order
+    sw_state.env_orders[global_timestep] = env_order
     total_other = other_orders + env_order
     sw_state.total_water_orders += total_other
     @assert env_order >= 0 && other_orders >= 0

@@ -23,7 +23,7 @@ Save model outputs to CSV files in the result directory.
 - `policy_step::Int` : Timestep for ecological index in days (default: 7 for weekly)
 """
 function save_outputs(
-    results::Vector{NamedTuple}, result_dir::String, start_date::Date; policy_step::Int=7
+    results::Vector{NamedTuple}, result_dir::String, start_date::Date
 )::Nothing
     farm_dir = joinpath(result_dir, "farm")
     mkdir(farm_dir)
@@ -34,13 +34,11 @@ function save_outputs(
 
     # Generate date ranges based on actual data lengths
     n_daily = length(results[1].dam_level)
-    n_policy = length(results[1].env_orders)
     daily_dates = collect(start_date:Day(1):(start_date + Day(n_daily - 1)))
-    policy_dates = collect(start_date:Day(policy_step):(start_date + Day(policy_step * (n_policy - 1))))
 
     dam_level_df = DataFrame(date = daily_dates)
     rec_index_df = DataFrame(date = daily_dates)
-    eco_index_df = DataFrame(date = policy_dates)
+    eco_index_df = DataFrame(date = daily_dates)
 
     for result in results
         col_name = "scenario_$(result.scenario_id)"
