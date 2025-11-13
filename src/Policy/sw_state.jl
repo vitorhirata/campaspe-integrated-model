@@ -68,9 +68,10 @@ SwState constructor.
 function SwState(
     model_run_range::Union{StepRange{Date, Period}, Vector{Date}}, zone_info::Dict{String, Any},
     goulburn_alloc_scenario::String, dam_ext::DataFrame, env_systems::DataFrame, other_systems::DataFrame,
+    timestep::Int64 = 14
 )::SwState
 
-    total_n_weeks = round(Int, (length(model_run_range) / 7) + 1) + 7
+    total_n_weeks = round(Int, (length(model_run_range) / timestep) + 1) + 7
     total_n_years = round(Int, (length(model_run_range) / 356) + 1)
     gmw_vol = zeros(total_n_weeks)
     env_orders = zeros(length(model_run_range))  # Use total days, not weeks, since indexed by global_timestep
@@ -108,7 +109,7 @@ function SwState(
         water_losses=water_losses, hr_entitlement=hr_entitlement, lr_entitlement=lr_entitlement,
         farm_hr_entitlement=farm_hr_entitlement, farm_lr_entitlement=farm_lr_entitlement,
         other_hr_entitlements=other_hr_entitlements, other_lr_entitlements=other_lr_entitlements,
-        env_state=env_state, env_orders=env_orders
+        env_state=env_state, env_orders=env_orders, timestep=Day(timestep)
     )
 end
 
