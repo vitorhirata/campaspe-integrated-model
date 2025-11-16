@@ -78,11 +78,11 @@ weakdeps = ["SparseArrays", "StaticArrays"]
 
 [[deps.Agtor]]
 deps = ["BlackBoxOptim", "CSV", "CategoricalArrays", "Compose", "Conda", "DataFrames", "DataStructures", "Dates", "Distributed", "Distributions", "FileIO", "Flatten", "Formatting", "GLPK", "Glob", "HDF5", "IJulia", "Images", "Interact", "JLD2", "JuMP", "Mixers", "Mux", "Optim", "OrderedCollections", "Parameters", "Plots", "ProgressMeter", "PyCall", "Setfield", "Statistics", "Surrogates", "Tables", "YAML"]
-git-tree-sha1 = "b9cde2d38817c7c68387a92e8639c0dfe9234d54"
+git-tree-sha1 = "024452c4305bbed6c08b3d3f03bc7581aa550bb0"
 repo-rev = "main"
 repo-url = "https://github.com/ConnectedSystems/Agtor.jl.git"
 uuid = "95dc4c25-59f6-4b9e-a920-4913b22a8444"
-version = "0.2.1"
+version = "0.2.2"
 
 [[deps.AliasTables]]
 deps = ["PtrArrays", "Random"]
