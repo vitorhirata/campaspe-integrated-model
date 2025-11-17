@@ -60,7 +60,7 @@ Run the Campaspe integrated water resource model.
 Integrates four coupled submodels to simulate water resource dynamics.
 1. Farm model (Agtor.jl) - Agricultural water demand and irrigation decisions
 2. Surface water model (Streamfall.jl) - River and dam hydrology
-3. Groundwater model - Aquifer dynamics and extraction (TODO: not yet implemented)
+3. Groundwater model - Aquifer dynamics and extraction
 4. Policy model - Water allocation and environmental flow rules
 
 The model runs on a daily timestep, with some models running on a coarser
@@ -71,6 +71,7 @@ resolution. Each internal models is responsible to check if it should be runned.
   - `:farm_climate_path` : Path to CSV with farm climate data (Date, rainfall, evaporation)
   - `:start_day` : Start date for model run (String or Date)
   - `:end_day` : End date for model run (String or Date)
+  - `:recreational_path` : Path to CSV with recreational curve data
   - `:dam_extractions_path` : Path to CSV with historical dam extractions
   - `:policy_path` : Path to water allocation policy configuration
   - `:goulburn_alloc` : Goulburn water allocation parameters
@@ -150,7 +151,8 @@ function run_model(scenario::DataFrameRow)::Tuple{DataFrame,Vector{Float64},Vect
     farm_gw_orders_ML = copy(farm_sw_orders_orig)
 
     # Initialize groundwater model outputs (used when ts == run_length and groundwater model doesn't run)
-    exchange = Dict{String,Float64}()
+    gw_model = CampaspeIntegratedModel.GWModel()
+    exchange = DataFrame("Date" => sw_climate.climate_data.Date, "406000_exchange_[ML]" => 0.0)
     trigger_head = Dict{String,Float64}()
     avg_gw_depth = Dict{String,Float64}()
 
@@ -167,8 +169,8 @@ function run_model(scenario::DataFrameRow)::Tuple{DataFrame,Vector{Float64},Vect
         next_day = ts + 1
 
         if ts < run_length
-            # run groundwater model # TODO
-            exchange, trigger_head, avg_gw_depth = update_groundwater()
+            exchange[ts, "406000_exchange_[ML]"] = update_gw!(gw_model, sw_climate, farm_gw_orders_ML, ts)
+            trigger_head, avg_gw_depth = gw_levels(gw_model)
 
             # Run surface water model
             add_ext = get_dam_extraction(policy_state.sw_state, dt)
@@ -194,7 +196,7 @@ function run_model(scenario::DataFrameRow)::Tuple{DataFrame,Vector{Float64},Vect
             not_zero_release = !isapprox(water_release, 0.0; atol=1e-6)
             if was_released && not_zero_release
                 end_date = (ts + farm_step <= nrow(dam_extraction)) ? ts + farm_step : size(dam_extraction)[1]
-                dam_extraction[(ts+1):(end_date), "406000_releases_[ML]"] .+= water_release
+                dam_extraction[next_day:end_date, "406000_releases_[ML]"] .+= water_release
                 farm_sw_orders = copy(farm_sw_orders_orig) # reset farm sw orders
             end
         end
@@ -207,6 +209,11 @@ function run_model(scenario::DataFrameRow)::Tuple{DataFrame,Vector{Float64},Vect
 
     farm_results = parse_farm_results(Agtor.collect_results(campaspe_basin))
     dam_level_ts = dam_level(sn)
+    # On the last step the SW model don't run. Assume last timestep has same level
+    dam_level_ts[end] = dam_level_ts[end-1]
+
+    recreational_path = get(scenario, :recreational_path, "data/policy/recreation_curve.csv")
+    recreational_curve = DataFrame(CSV.File(recreational_path))
 
     @info "Finished run"
     return farm_results, dam_level_ts, recreational_index(dam_level_ts), policy_state.sw_state.env_orders

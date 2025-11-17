@@ -18,7 +18,7 @@ Update and run the surface water model for a single timestep.
 """
 function update_surface_water(
     sn::Streamfall.StreamfallNetwork, climate::Streamfall.Climate, ts::Int64, date::Date,
-    extraction::DataFrame, exchange::Dict{String, Float64}
+    extraction::DataFrame, exchange::DataFrame
 )::Nothing
     if ts == 1
         timesteps = CampaspeIntegratedModel.Streamfall.sim_length(climate)
@@ -26,11 +26,6 @@ function update_surface_water(
     end
 
     inlets, outlets = CampaspeIntegratedModel.Streamfall.find_inlets_and_outlets(sn)
-
-    # TODO: Temporary solution. Compute mean exchange for all gauges because the current code does not support receiving
-    # one value for each gauges. A better solution is creating a dataframe with all dates and fill the correct value.
-    # Probably create a struct.
-    exchange = mean(values(exchange))
 
     for outlet in outlets
         CampaspeIntegratedModel.Streamfall.run_node!(sn, outlet, climate, ts; extraction=extraction, exchange=exchange)

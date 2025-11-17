@@ -6,8 +6,8 @@
     sw_perc_entitlement::Float64 = 0.0
     season_start::Date = Date(1900, 7, 1) # Year is ignored
     season_end::Date = Date(1900, 4, 30) # Year is ignored
-    drought_trigger::Float64 = 0.3
-    max_drought_years::Int64 = 3
+    drought_trigger::Float64 = 0.4
+    max_drought_years::Int64 = 2
     zone_info::DataFrame = DataFrame()
     trigger_tables::Dict{String, Dict{String, DataFrame}} = Dict()
     zone_rows::Dict{String, BitVector} = Dict()

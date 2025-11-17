@@ -24,13 +24,14 @@ function sample_individual_options(start_day::String, end_day::String, climate_t
     scenario = DataFrame(Dict(
         :start_day => start_day,
         :end_day => end_day,
+        :recreational_path => "data/policy/recreation_curve.csv",
         # Farm parameters
         :farm_climate_path => farm_climate_path,
         :farm_path => "data/farm/basin",
         :farm_step => 14,
         # Policy parameters
         :policy_path => "data/policy",
-        :goulburn_alloc => "high",
+        :goulburn_alloc => "median",
         :restriction_type => "default",
         :max_carryover_perc => 0.25,
         :carryover_period => 1,
@@ -58,6 +59,8 @@ function sample_individual_options(start_day::String, end_day::String, climate_t
     for (i, policy_opt) in enumerate(policy_options)
         scenario[1 + length(farm_options) + i, :policy_option] = policy_opt
     end
+    scenario[12, "farm_option"] = "improve_irrigation_efficiency"
+    scenario[13, "farm_option"] = "implement_solar_panels"
 
-    return scenario
+    return select(scenario, "policy_option", "farm_option" , Not("policy_option", "farm_option"))
 end

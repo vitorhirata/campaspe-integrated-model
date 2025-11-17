@@ -1,8 +1,9 @@
 using Test
 using CampaspeIntegratedModel
 
-using DataFrames, Dates
+using DataFrames, Dates, CSV
 
+include("./Groundwater/test_bucket_gw.jl")
 include("./constructors.jl")
 include("./Policy/gw_state.jl")
 include("./Policy/gw_update.jl")
